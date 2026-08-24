@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Réclamations - Capital 2 Roues</title>
+    <link rel="stylesheet" href="css/client-style.css">
+    <style>
+        .reclamations-client-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .stat-card .icon { font-size: 28px; }
+        .stat-card .number { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+        .stat-card .label { font-size: 13px; color: #888; }
+        .stat-card.total .number { color: #1a1a2e; }
+        .stat-card.en-cours .number { color: #FF9800; }
+        .stat-card.resolu .number { color: #4CAF50; }
+
+        /* ===== FORMULAIRE ===== */
+        .form-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        .form-card h3 {
+            margin: 0 0 15px;
+            color: #1a1a2e;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #2d3436;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .btn-submit-form {
+            padding: 12px 32px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-submit-form:hover {
+            background: #d63d56;
+            transform: translateY(-2px);
+        }
+
+        /* ===== LISTE ===== */
+        .reclamation-item {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            border-left: 4px solid #e94560;
+        }
+        .reclamation-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .reclamation-item .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .reclamation-item .header .id {
+            font-weight: 700;
+            color: #e94560;
+            font-size: 16px;
+        }
+        .reclamation-item .header .date {
+            color: #888;
+            font-size: 13px;
+        }
+        .reclamation-item .sujet {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+        .reclamation-item .description {
+            color: #636e72;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .reclamation-item .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .reclamation-item .footer .badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .reclamation-item .footer .badge-status {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-status.en_attente { background: #fff3e0; color: #e65100; }
+        .badge-status.en_cours { background: #e3f2fd; color: #0d47a1; }
+        .badge-status.resolue { background: #e8f5e9; color: #1b5e20; }
+        .badge-status.fermee { background: #f5f5f5; color: #616161; }
+
+        .badge-priority {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-priority.basse { background: #e8f5e9; color: #2e7d32; }
+        .badge-priority.moyenne { background: #fff3e0; color: #e65100; }
+        .badge-priority.haute { background: #fce4ec; color: #c62828; }
+        .badge-priority.urgente { background: #ffebee; color: #b71c1c; }
+
+        .reclamation-item .reponse {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 10px;
+            border-left: 3px solid #4CAF50;
+        }
+        .reclamation-item .reponse .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+        .reclamation-item .reponse .text {
+            font-size: 14px;
+            color: #2d3436;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #b2bec3;
+        }
+        .empty-state .icon { font-size: 50px; margin-bottom: 15px; }
+        .empty-state h3 { color: #2d3436; margin-bottom: 10px; }
+
+        /* ===== MODAL DÉTAIL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active .modal { transform: translateY(0); }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            border-radius: 12px 12px 0 0;
+            z-index: 10;
+        }
+        .modal-header h3 { margin: 0; font-size: 18px; color: #1a1a2e; }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f8f9fa;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { background: #fce4ec; color: #e94560; }
+        .modal-body { padding: 24px; }
+
+        /* ===== ALERT ===== */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+        .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+
+        /* ===== BOUTON ACTION ===== */
+        .btn-action {
+            background: #e3f2fd;
+            color: #1976D2;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .btn-action:hover {
+            background: #1976D2;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .reclamation-item .header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Client -->
+    <nav class="client-navbar">
+        <div class="brand">
+            <h1>🏍️ Capital 2 Roues</h1>
+            <small>Votre passion, notre métier</small>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">🏠 Accueil</a></li>
+            <li><a href="catalogue.html">📦 Catalogue</a></li>
+            <li><a href="panier.html">🛒 Panier <span class="badge" id="panierCount">0</span></a></li>
+            <li><a href="commandes.html">📋 Commandes</a></li>
+            <li><a href="profil.html">👤 Profil</a></li>
+            <li><a href="reclamations.html" class="active">📋 Réclamations</a></li>
+        </ul>
+        <div class="language-selector">
+            <select id="languageSelector" class="language-select">
+                <option value="fr">🇫🇷</option>
+                <option value="en">🇬🇧</option>
+                <option value="ar">🇸🇦</option>
+            </select>
+        </div>
+        <div class="user-info-nav" id="userInfo"></div>
+    </nav>
+
+    <div class="reclamations-client-container">
+        <h2 style="margin-bottom:20px;">📋 Mes Réclamations</h2>
+
+        <div id="alert" class="alert"></div>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card total">
+                <div class="icon">📊</div>
+                <div class="info">
+                    <div class="number" id="totalReclamations">0</div>
+                    <div class="label">Total</div>
+                </div>
+            </div>
+            <div class="stat-card en-cours">
+                <div class="icon">⏳</div>
+                <div class="info">
+                    <div class="number" id="enCours">0</div>
+                    <div class="label">En cours</div>
+                </div>
+            </div>
+            <div class="stat-card resolu">
+                <div class="icon">✅</div>
+                <div class="info">
+                    <div class="number" id="resolues">0</div>
+                    <div class="label">Résolues</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="form-card">
+            <h3>📝 Nouvelle réclamation</h3>
+            <form id="reclamationForm">
+                <div class="form-group">
+                    <label>Sujet *</label>
+                    <input type="text" id="sujet" placeholder="Ex: Problème de livraison" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type *</label>
+                        <select id="type" required>
+                            <option value="PRODUIT">🏍️ Produit</option>
+                            <option value="LIVRAISON">📦 Livraison</option>
+                            <option value="FACTURE">📄 Facture</option>
+                            <option value="SERVICE">🛠️ Service</option>
+                            <option value="AUTRE">📌 Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Commande associée (optionnel)</label>
+                        <select id="venteId">
+                            <option value="">-- Aucune --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="description" placeholder="Décrivez votre réclamation en détail..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit-form">📤 Envoyer la réclamation</button>
+            </form>
+        </div>
+
+        <!-- Liste -->
+        <h3 style="margin-bottom:15px;">📋 Historique des réclamations</h3>
+        <div id="reclamationsList">
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <h3>Aucune réclamation</h3>
+                <p>Vous n'avez pas encore envoyé de réclamation</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Détail -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="detailTitle">📄 Détail de la réclamation</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent"></div>
+        </div>
+    </div>
+
+    <script src="js/reclamations-client.js"></script>
+</body>
+</html>

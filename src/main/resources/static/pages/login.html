@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Capital 2 Roues</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #1a1a2e, #16213e); font-family: Arial, sans-serif;">
+    <div style="background: white; padding: 40px; border-radius: 10px; width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #1a1a2e; margin: 0;">🏍️ Capital 2 Roues</h1>
+            <p style="color: #888; margin: 5px 0 0;">Connectez-vous à votre espace</p>
+        </div>
+        
+        <div id="errorMessage" style="display: none; background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #f5c6cb;"></div>
+        
+        <form id="loginForm">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email</label>
+            <input type="email" id="email" value="admin@capital2roues.com" placeholder="Email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 15px; box-sizing: border-box;">
+            
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Mot de passe</label>
+            <input type="password" id="password" value="admin123" placeholder="Mot de passe" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; box-sizing: border-box;">
+            
+            <button type="submit" style="width: 100%; padding: 12px; background: #e94560; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold;">
+                Se connecter
+            </button>
+        </form>
+        
+        <div style="margin-top: 20px; text-align: center; color: #888; font-size: 13px;">
+            <p style="margin: 0;">Admin: admin@capital2roues.com / admin123</p>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // Cacher l'erreur précédente
+            errorDiv.style.display = 'none';
+            
+            if (!email || !password) {
+                errorDiv.textContent = 'Veuillez remplir tous les champs';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Vérifier si c'est l'admin (pour l'instant, on vérifie en dur)
+            if (email === 'admin@capital2roues.com' && password === 'admin123') {
+                // Stocker les informations de connexion
+                localStorage.setItem('email', email);
+                localStorage.setItem('isLoggedIn', 'true');
+                
+                // Rediriger vers le dashboard
+                window.location.href = '/pages/dashboard.html';
+            } else {
+                errorDiv.textContent = 'Email ou mot de passe incorrect';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

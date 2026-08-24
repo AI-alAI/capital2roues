@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produits - Capital 2 Roues</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* ===== PRODUCTS PAGE STYLES ===== */
+        .products-container {
+            padding: 20px;
+        }
+
+        /* ===== STOCK SUMMARY CARDS ===== */
+        .stock-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stock-summary .summary-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform 0.3s;
+        }
+
+        .stock-summary .summary-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stock-summary .summary-card .icon {
+            font-size: 28px;
+        }
+
+        .stock-summary .summary-card .info .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .stock-summary .summary-card .info .label {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .stock-summary .summary-card.total .number { color: #1a1a2e; }
+        .stock-summary .summary-card.normal .number { color: #4CAF50; }
+        .stock-summary .summary-card.warning .number { color: #FF9800; }
+        .stock-summary .summary-card.critical .number { color: #e94560; }
+
+        /* ===== FILTERS ===== */
+        .filters-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filters-row .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filters-row .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #636e72;
+            white-space: nowrap;
+        }
+
+        .filters-row input,
+        .filters-row select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        .filters-row input:focus,
+        .filters-row select:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .filters-row input[type="text"] {
+            width: 220px;
+        }
+
+        .filters-row input[type="number"] {
+            width: 80px;
+        }
+
+        .btn-filter {
+            padding: 8px 20px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            background: #d63d56;
+        }
+
+        .btn-reset {
+            padding: 8px 20px;
+            background: #f8f9fa;
+            color: #636e72;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:hover {
+            background: #e9ecef;
+        }
+
+        .filters-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto;
+            flex-wrap: wrap;
+        }
+
+        /* ===== TABLE ===== */
+        .table-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .table-header h4 {
+            margin: 0;
+            font-size: 16px;
+            color: #1a1a2e;
+        }
+
+        .table-header .product-count {
+            color: #b2bec3;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .data-table-wrap {
+            overflow-x: auto;
+            padding: 0 4px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 900px;
+        }
+
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #636e72;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #f0f0f0;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .data-table th:hover {
+            color: #1a1a2e;
+        }
+
+        .data-table th .sort-icon {
+            font-size: 10px;
+            margin-left: 4px;
+            opacity: 0.4;
+        }
+
+        .data-table th.active .sort-icon {
+            opacity: 1;
+            color: #e94560;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f5f6fa;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .data-table tbody tr:hover td {
+            background: #fafbfc;
+        }
+
+        .data-table .product-name {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .data-table .product-ref {
+            color: #b2bec3;
+            font-size: 12px;
+        }
+
+        /* ===== STOCK STATUS ===== */
+        .stock-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stock-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .stock-dot.normal { background: #4CAF50; }
+        .stock-dot.warning { background: #FF9800; }
+        .stock-dot.critical { background: #e94560; }
+        .stock-dot.out { background: #636e72; }
+
+        .stock-text {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .stock-text.normal { color: #4CAF50; }
+        .stock-text.warning { color: #FF9800; }
+        .stock-text.critical { color: #e94560; }
+        .stock-text.out { color: #636e72; }
+
+        /* ===== ACTIONS ===== */
+        .action-buttons {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+        }
+
+        .btn-action.view {
+            background: #e3f2fd;
+            color: #1976D2;
+        }
+        .btn-action.view:hover { background: #bbdefb; }
+
+        .btn-action.edit {
+            background: #fff3e0;
+            color: #FF9800;
+        }
+        .btn-action.edit:hover { background: #ffe0b2; }
+
+        .btn-action.delete {
+            background: #fce4ec;
+            color: #e94560;
+        }
+        .btn-action.delete:hover { background: #f8d7da; }
+
+        .btn-action.stock-mvt {
+            background: #e8f5e9;
+            color: #4CAF50;
+        }
+        .btn-action.stock-mvt:hover { background: #c8e6c9; }
+
+        .btn-action .tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .btn-action:hover .tooltip {
+            display: block;
+        }
+
+        .btn-action .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1a1a2e;
+        }
+
+        /* ===== ACTIONS COLUMN STICKY ===== */
+        .data-table .actions-col {
+            position: sticky;
+            right: 0;
+            background: #fff;
+            z-index: 3;
+            box-shadow: -4px 0 12px rgba(0,0,0,0.04);
+        }
+
+        .data-table .actions-col-header {
+            position: sticky;
+            right: 0;
+            background: #f8f9fa;
+            z-index: 6;
+            box-shadow: -4px 0 12px rgba(0,0,0,0.04);
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination-wrap {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .pagination-info {
+            color: #b2bec3;
+            font-size: 13px;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .pagination-buttons button {
+            min-width: 34px;
+            height: 34px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #636e72;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .pagination-buttons button:hover:not(:disabled):not(.active) {
+            background: #f8f9fa;
+            border-color: #e94560;
+            color: #e94560;
+        }
+
+        .pagination-buttons button.active {
+            background: #e94560;
+            color: #fff;
+            border-color: #e94560;
+        }
+
+        .pagination-buttons button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-size {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .stock-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .filters-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filters-row input[type="text"] {
+                width: 100%;
+            }
+            .filters-actions {
+                margin-left: 0;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stock-summary {
+                grid-template-columns: 1fr 1fr;
+            }
+            .data-table {
+                font-size: 13px;
+                min-width: 700px;
+            }
+            .data-table th,
+            .data-table td {
+                padding: 8px 12px;
+            }
+            .pagination-wrap {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stock-summary {
+                grid-template-columns: 1fr;
+            }
+            .filters-row .filter-group {
+                flex-wrap: wrap;
+            }
+            .btn-action span {
+                display: none;
+            }
+        }
+
+        /* ===== ALERT ===== */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        /* ===== LOADING ===== */
+        .loading-products {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading-products .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #e94560;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== BOUTON EXPORT EXCEL ===== */
+        .btn-excel {
+            padding: 8px 20px;
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-excel:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .table-header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>🏍️ Capital</h2>
+            <small>2 Roues</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html"><span class="icon">📊</span> <span>Dashboard</span></a></li>
+            <li class="active"><a href="produits.html"><span class="icon">🏍️</span> <span>Produits</span></a></li>
+            <li><a href="clients.html"><span class="icon">👥</span> <span>Clients</span></a></li>
+            <li><a href="ventes.html"><span class="icon">🛒</span> <span>Ventes</span></a></li>
+            <li><a href="utilisateurs.html"><span class="icon">👤</span> <span>Utilisateurs</span></a></li>
+            <li style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <a href="#" onclick="logout()"><span class="icon">🚪</span> <span>Déconnexion</span></a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h3>🏍️ Gestion des Produits</h3>
+            <div class="user-info">
+                <span id="userEmail">Admin</span>
+                <div class="user-avatar">A</div>
+                <button class="logout-btn" onclick="logout()">Déconnexion</button>
+            </div>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="products-container">
+            <!-- ===== STOCK SUMMARY ===== -->
+            <div class="stock-summary" id="stockSummary">
+                <div class="summary-card total">
+                    <div class="icon">🏍️</div>
+                    <div class="info">
+                        <div class="number" id="totalProducts">0</div>
+                        <div class="label">Total produits</div>
+                    </div>
+                </div>
+                <div class="summary-card normal">
+                    <div class="icon">🟢</div>
+                    <div class="info">
+                        <div class="number" id="normalStock">0</div>
+                        <div class="label">Stock normal</div>
+                    </div>
+                </div>
+                <div class="summary-card warning">
+                    <div class="icon">🟠</div>
+                    <div class="info">
+                        <div class="number" id="warningStock">0</div>
+                        <div class="label">Stock faible</div>
+                    </div>
+                </div>
+                <div class="summary-card critical">
+                    <div class="icon">🔴</div>
+                    <div class="info">
+                        <div class="number" id="criticalStock">0</div>
+                        <div class="label">Critique / Rupture</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== FILTERS ===== -->
+            <div class="filters-section">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <input type="text" id="searchInput" placeholder="🔍 Rechercher par nom ou référence...">
+                    </div>
+                    <div class="filter-group">
+                        <label>Catégorie</label>
+                        <select id="categoryFilter"><option value="">Toutes</option></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Stock</label>
+                        <select id="stockFilter">
+                            <option value="">Tous</option>
+                            <option value="normal">🟢 Normal (>5)</option>
+                            <option value="warning">🟠 Faible (1-5)</option>
+                            <option value="critical">🔴 Critique (0)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Prix min</label>
+                        <input type="number" id="prixMin" placeholder="Min" style="width:80px;">
+                    </div>
+                    <div class="filter-group">
+                        <label>Prix max</label>
+                        <input type="number" id="prixMax" placeholder="Max" style="width:80px;">
+                    </div>
+                    <div class="filters-actions">
+                        <button class="btn-filter" onclick="applyFilters()">🔍 Rechercher</button>
+                        <button class="btn-reset" onclick="resetFilters()">↻ Réinitialiser</button>
+                        <button class="btn-filter" onclick="openAddModal()" style="background:#4CAF50;">➕ Nouveau produit</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TABLE ===== -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h4>📋 Liste des produits <span class="product-count" id="productCount"></span></h4>
+                    <div class="table-header-right">
+                        <button class="btn-excel" onclick="exportExcel()">
+                            📊 Exporter Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div id="loadingProducts" class="loading-products">
+                    <div class="spinner"></div>
+                    <p>Chargement des produits...</p>
+                </div>
+
+                <div id="tableContent" style="display:none;">
+                    <div class="data-table-wrap">
+                        <table class="data-table" id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortBy('id')" class="active">ID <span class="sort-icon">↕</span></th>
+                                    <th onclick="sortBy('nom')">Produit <span class="sort-icon">↕</span></th>
+                                    <th onclick="sortBy('reference')">Référence <span class="sort-icon">↕</span></th>
+                                    <th>Catégorie</th>
+                                    <th onclick="sortBy('prixAchat')" style="text-align:right;">Prix Achat <span class="sort-icon">↕</span></th>
+                                    <th onclick="sortBy('prixVente')" style="text-align:right;">Prix Vente <span class="sort-icon">↕</span></th>
+                                    <th onclick="sortBy('prixAchat')" style="text-align:right;">Marge <span class="sort-icon">↕</span></th>
+                                    <th onclick="sortBy('quantiteStock')" style="text-align:center;">Stock <span class="sort-icon">↕</span></th>
+                                    <th style="text-align:center;">État</th>
+                                    <th style="text-align:center; min-width:140px;" class="actions-col-header">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-wrap">
+                        <div class="pagination-info" id="paginationInfo"></div>
+                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                            <select id="pageSizeSelect" class="pagination-size" onchange="changePageSize()">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <div class="pagination-buttons" id="paginationButtons"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL AJOUT/EDITION ===== -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal" style="max-width:750px;">
+            <div class="modal-header">
+                <h3 id="modalTitle">➕ Ajouter un produit</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="editId">
+                    <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="form-group full-width" style="grid-column:1/-1;">
+                            <label>Nom du produit *</label>
+                            <input type="text" id="nom" placeholder="Ex: Yamaha MT-07" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Référence *</label>
+                            <input type="text" id="reference" placeholder="Ex: YAM-MT07-001" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Catégorie</label>
+                            <select id="categorieId"><option value="">Sélectionner</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>VIN (Châssis)</label>
+                            <input type="text" id="vin" placeholder="Numéro de châssis">
+                        </div>
+                        <div class="form-group">
+                            <label>Année</label>
+                            <input type="number" id="annee" placeholder="2025">
+                        </div>
+                        <div class="form-group">
+                            <label>Couleur</label>
+                            <input type="text" id="couleur" placeholder="Ex: Noir, Rouge">
+                        </div>
+                        <div class="form-group">
+                            <label>Cylindrée (cc)</label>
+                            <input type="number" id="cylindree" placeholder="Ex: 689">
+                        </div>
+                        <div class="form-group">
+                            <label>Garantie</label>
+                            <input type="text" id="garantie" placeholder="Ex: 2 ans">
+                        </div>
+                        <div class="form-group">
+                            <label>Prix d'achat *</label>
+                            <input type="number" id="prixAchat" placeholder="Ex: 55000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Prix de vente *</label>
+                            <input type="number" id="prixVente" placeholder="Ex: 94977" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantité en stock</label>
+                            <input type="number" id="quantiteStock" placeholder="0" value="0">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel-modal" onclick="closeModal()">Annuler</button>
+                <button class="btn-submit" onclick="submitProduct()">💾 Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL DETAIL ===== -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal" style="max-width:650px;">
+            <div class="modal-header">
+                <h3 id="detailTitle">🏍️ Détail du produit</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent"></div>
+            <div class="modal-footer">
+                <button class="btn-cancel-modal" onclick="closeDetailModal()">Fermer</button>
+                <button class="btn-submit" onclick="openEditFromDetail()" style="background:#FF9800;">✏️ Modifier</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL SUPPRESSION ===== -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal" style="max-width:420px;">
+            <div class="modal-header">
+                <h3>⚠️ Supprimer le produit</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:8px;">Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+                <p style="color:#e94560; font-weight:bold; font-size:18px;" id="deleteProductName"></p>
+                <p style="font-size:13px; color:#888;">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel-modal" onclick="closeDeleteModal()">Annuler</button>
+                <button class="btn-submit" onclick="confirmDelete()" style="background:#e94560;">🗑️ Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/produits.js"></script>
+</body>
+</html>

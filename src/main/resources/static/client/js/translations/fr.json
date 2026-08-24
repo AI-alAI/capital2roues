@@ -1,0 +1,153 @@
+{
+    "app": {
+        "title": "Capital 2 Roues",
+        "subtitle": "Votre passion, notre métier",
+        "brand": "🏍️ Capital 2 Roues"
+    },
+    "nav": {
+        "home": "🏠 Accueil",
+        "catalogue": "📦 Catalogue",
+        "panier": "🛒 Panier",
+        "commandes": "📋 Commandes",
+        "profil": "👤 Profil",
+        "login": "🔐 Se connecter",
+        "register": "S'inscrire",
+        "logout": "🚪 Déconnexion",
+        "admin": "🔐 Espace Pro"
+    },
+    "home": {
+        "hero": {
+            "title": "🏍️ Votre passion roule avec nous",
+            "subtitle": "Découvrez notre gamme de motos et deux-roues de qualité",
+            "btnCatalogue": "📦 Voir le catalogue",
+            "btnPromotions": "🔥 Promotions"
+        },
+        "stats": {
+            "produits": "Motos disponibles",
+            "clients": "Clients satisfaits",
+            "ventes": "Ventes réalisées",
+            "marques": "Marques disponibles"
+        },
+        "featured": "🔥 Motos en vedette",
+        "promotions": "🎯 Offres spéciales",
+        "viewAll": "Voir tout le catalogue →"
+    },
+    "auth": {
+        "login": {
+            "title": "Connectez-vous à votre espace client",
+            "email": "Email",
+            "password": "Mot de passe",
+            "submit": "Se connecter",
+            "registerLink": "Créer un compte",
+            "backHome": "Retour à l'accueil",
+            "error": "❌ Email ou mot de passe incorrect",
+            "success": "✅ Connexion réussie !"
+        },
+        "register": {
+            "title": "Créer votre compte client",
+            "nom": "Nom *",
+            "prenom": "Prénom *",
+            "email": "Email *",
+            "telephone": "Téléphone",
+            "adresse": "Adresse",
+            "password": "Mot de passe *",
+            "confirmPassword": "Confirmer le mot de passe *",
+            "submit": "S'inscrire",
+            "loginLink": "Déjà un compte ? Se connecter",
+            "success": "✅ Compte créé avec succès !",
+            "error": "❌ Erreur: "
+        }
+    },
+    "catalogue": {
+        "title": "📦 Notre Catalogue",
+        "subtitle": "Découvrez notre sélection de motos et deux-roues",
+        "search": "🔍 Rechercher un produit...",
+        "allCategories": "Toutes les catégories",
+        "sortBy": "Trier par",
+        "sortName": "Trier par nom",
+        "sortPriceAsc": "Prix croissant",
+        "sortPriceDesc": "Prix décroissant",
+        "filter": "🔍 Filtrer",
+        "reset": "🔄 Réinitialiser",
+        "inStock": "✅ En stock",
+        "lowStock": "⚠️ Stock limité",
+        "outOfStock": "❌ Rupture",
+        "addToCart": "🛒 Ajouter au panier",
+        "unavailable": "❌ Indisponible",
+        "added": "✅ Ajouté !",
+        "empty": "📭 Aucun produit trouvé",
+        "emptyHint": "Essayez de modifier vos critères de recherche"
+    },
+    "panier": {
+        "title": "🛒 Mon Panier",
+        "empty": "🛒 Votre panier est vide",
+        "emptyHint": "Parcourez notre catalogue pour ajouter des produits",
+        "viewCatalogue": "📦 Voir le catalogue",
+        "total": "Total",
+        "validate": "✅ Valider la commande",
+        "clear": "🗑️ Vider",
+        "confirm": "Confirmer votre commande ?",
+        "success": "✅ Commande validée avec succès !",
+        "error": "❌ Erreur: "
+    },
+    "commandes": {
+        "title": "📋 Mes Commandes",
+        "subtitle": "Suivez l'état de vos commandes",
+        "empty": "📭 Aucune commande",
+        "emptyHint": "Vous n'avez pas encore passé de commande",
+        "viewCatalogue": "📦 Voir le catalogue",
+        "client": "Client",
+        "products": "Produits",
+        "detail": "📄 Voir détail",
+        "pdf": "📄 PDF",
+        "status": {
+            "payee": "Payée",
+            "annulee": "Annulée",
+            "retournee": "Retournée"
+        }
+    },
+    "profil": {
+        "title": "👤 Mon Profil",
+        "subtitle": "Gérez vos informations personnelles",
+        "nom": "Nom",
+        "prenom": "Prénom",
+        "email": "Email",
+        "telephone": "Téléphone",
+        "adresse": "Adresse",
+        "edit": "✏️ Modifier mes informations",
+        "changePassword": "🔑 Changer le mot de passe",
+        "save": "💾 Enregistrer",
+        "cancel": "❌ Annuler",
+        "stats": "📊 Mes statistiques",
+        "commandes": "Commandes passées",
+        "total": "Total dépensé (DH)",
+        "moyenne": "Panier moyen (DH)",
+        "recentOrders": "📋 Dernières commandes",
+        "viewAll": "Voir toutes mes commandes →",
+        "noOrders": "Aucune commande récente",
+        "success": "✅ Profil mis à jour avec succès !"
+    },
+    "footer": {
+        "about": "Votre spécialiste motos et deux-roues depuis 2020",
+        "address": "📍 Casablanca, Maroc",
+        "phone": "📞 +212 5XX-XXXXXX",
+        "hours": "Lun - Ven : 9h - 19h",
+        "hoursSat": "Sam : 10h - 17h",
+        "hoursSun": "Dim : Fermé",
+        "quickLinks": "Liens rapides",
+        "rights": "Tous droits réservés."
+    },
+    "common": {
+        "loading": "Chargement...",
+        "back": "Retour",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "close": "Fermer",
+        "search": "Rechercher",
+        "filter": "Filtrer",
+        "reset": "Réinitialiser"
+    }
+}

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réclamations - Capital 2 Roues</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .reclamations-container { padding: 20px; }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .stat-card .icon { font-size: 28px; }
+        .stat-card .number { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+        .stat-card .label { font-size: 13px; color: #888; }
+        .stat-card.total .number { color: #1a1a2e; }
+        .stat-card.attente .number { color: #FF9800; }
+        .stat-card.cours .number { color: #2196F3; }
+        .stat-card.resolu .number { color: #4CAF50; }
+
+        /* Priority badges */
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .priority-badge.basse { background: #e8f5e9; color: #2e7d32; }
+        .priority-badge.moyenne { background: #fff3e0; color: #e65100; }
+        .priority-badge.haute { background: #fce4ec; color: #c62828; }
+        .priority-badge.urgente { background: #ffebee; color: #b71c1c; }
+
+        /* Status badges */
+        .status-badge-reclamation {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-badge-reclamation.en_attente { background: #fff3e0; color: #e65100; }
+        .status-badge-reclamation.en_cours { background: #e3f2fd; color: #0d47a1; }
+        .status-badge-reclamation.resolue { background: #e8f5e9; color: #1b5e20; }
+        .status-badge-reclamation.fermee { background: #f5f5f5; color: #616161; }
+
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            background: #fff;
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .filters-row input, .filters-row select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .filters-row input[type="text"] { width: 200px; }
+        
+        .btn-filter {
+            padding: 8px 20px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-reset {
+            padding: 8px 20px;
+            background: #f8f9fa;
+            color: #636e72;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .btn-action {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .btn-action.view { background: #e3f2fd; color: #1976D2; }
+        .btn-action.edit { background: #fff3e0; color: #FF9800; }
+        .btn-action.process { background: #e8f5e9; color: #4CAF50; }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 800px;
+        }
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #636e72;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f5f6fa;
+            vertical-align: middle;
+        }
+        .data-table tr:hover td { background: #fafbfc; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active .modal { transform: translateY(0); }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            border-radius: 12px 12px 0 0;
+            z-index: 10;
+        }
+        .modal-header h3 { margin: 0; font-size: 18px; color: #1a1a2e; }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f8f9fa;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { background: #fce4ec; color: #e94560; }
+        .modal-body { padding: 24px; }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            border-radius: 0 0 12px 12px;
+        }
+        .btn-submit {
+            padding: 10px 32px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-cancel-modal {
+            padding: 10px 32px;
+            background: #f8f9fa;
+            color: #636e72;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .detail-item {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .detail-item .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #b2bec3;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .detail-item .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-top: 2px;
+        }
+        .detail-item.full-width { grid-column: 1 / -1; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px; color: #2d3436; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+        .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+
+        @media (max-width: 992px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .filters-row { flex-direction: column; align-items: stretch; }
+            .filters-row input[type="text"] { width: 100%; }
+            .detail-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>🏍️ Capital</h2>
+            <small>2 Roues</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html"><span class="icon">📊</span> <span>Dashboard</span></a></li>
+            <li><a href="produits.html"><span class="icon">🏍️</span> <span>Produits</span></a></li>
+            <li><a href="clients.html"><span class="icon">👥</span> <span>Clients</span></a></li>
+            <li><a href="ventes.html"><span class="icon">🛒</span> <span>Ventes</span></a></li>
+            <li><a href="utilisateurs.html"><span class="icon">👤</span> <span>Utilisateurs</span></a></li>
+            <li class="active"><a href="reclamations.html"><span class="icon">📋</span> <span>Réclamations</span></a></li>
+            <li style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <a href="#" onclick="logout()"><span class="icon">🚪</span> <span>Déconnexion</span></a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <h3>📋 Gestion des Réclamations</h3>
+            <div class="user-info">
+                <span id="userEmail">Admin</span>
+                <div class="user-avatar">A</div>
+                <button class="logout-btn" onclick="logout()">Déconnexion</button>
+            </div>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="reclamations-container">
+            <!-- Stats -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card total">
+                    <div class="icon">📊</div>
+                    <div class="info">
+                        <div class="number" id="totalReclamations">0</div>
+                        <div class="label">Total</div>
+                    </div>
+                </div>
+                <div class="stat-card attente">
+                    <div class="icon">⏳</div>
+                    <div class="info">
+                        <div class="number" id="enAttente">0</div>
+                        <div class="label">En attente</div>
+                    </div>
+                </div>
+                <div class="stat-card cours">
+                    <div class="icon">🔄</div>
+                    <div class="info">
+                        <div class="number" id="enCours">0</div>
+                        <div class="label">En cours</div>
+                    </div>
+                </div>
+                <div class="stat-card resolu">
+                    <div class="icon">✅</div>
+                    <div class="info">
+                        <div class="number" id="resolues">0</div>
+                        <div class="label">Résolues</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-row">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher...">
+                <select id="statusFilter">
+                    <option value="">Tous les statuts</option>
+                    <option value="EN_ATTENTE">⏳ En attente</option>
+                    <option value="EN_COURS">🔄 En cours</option>
+                    <option value="RESOLUE">✅ Résolue</option>
+                    <option value="FERMEE">📌 Fermée</option>
+                </select>
+                <select id="priorityFilter">
+                    <option value="">Toutes les priorités</option>
+                    <option value="BASSE">🟢 Basse</option>
+                    <option value="MOYENNE">🟡 Moyenne</option>
+                    <option value="HAUTE">🟠 Haute</option>
+                    <option value="URGENTE">🔴 Urgente</option>
+                </select>
+                <button class="btn-filter" onclick="applyFilters()">🔍 Filtrer</button>
+                <button class="btn-reset" onclick="resetFilters()">↻ Réinitialiser</button>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h4>📋 Liste des réclamations <span id="reclamationCount"></span></h4>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width:60px;">#</th>
+                                <th>Client</th>
+                                <th>Sujet</th>
+                                <th>Type</th>
+                                <th style="text-align:center;">Priorité</th>
+                                <th style="text-align:center;">Statut</th>
+                                <th style="text-align:center; min-width:140px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reclamationsTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-wrap">
+                    <div class="pagination-info" id="paginationInfo"></div>
+                    <div class="pagination-buttons" id="paginationButtons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Détail -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="detailTitle">📄 Détail de la réclamation</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent"></div>
+            <div class="modal-footer">
+                <button class="btn-cancel-modal" onclick="closeDetailModal()">Fermer</button>
+                <button class="btn-submit" onclick="openProcessFromDetail()" style="background:#4CAF50;">✅ Traiter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Traitement -->
+    <div class="modal-overlay" id="processModal">
+        <div class="modal" style="max-width:600px;">
+            <div class="modal-header">
+                <h3>✅ Traiter la réclamation</h3>
+                <button class="modal-close" onclick="closeProcessModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="processId">
+                <div class="form-group">
+                    <label>Réponse</label>
+                    <textarea id="reponseInput" rows="4" placeholder="Votre réponse à cette réclamation..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Nouveau statut</label>
+                    <select id="statutInput">
+                        <option value="EN_COURS">🔄 En cours</option>
+                        <option value="RESOLUE">✅ Résolue</option>
+                        <option value="FERMEE">📌 Fermée</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Satisfaction (1-5)</label>
+                    <select id="satisfactionInput">
+                        <option value="">Non spécifié</option>
+                        <option value="1">⭐ 1 - Très insatisfait</option>
+                        <option value="2">⭐⭐ 2 - Insatisfait</option>
+                        <option value="3">⭐⭐⭐ 3 - Neutre</option>
+                        <option value="4">⭐⭐⭐⭐ 4 - Satisfait</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 5 - Très satisfait</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel-modal" onclick="closeProcessModal()">Annuler</button>
+                <button class="btn-submit" onclick="submitTraitement()" style="background:#4CAF50;">💾 Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/reclamations.js"></script>
+</body>
+</html>

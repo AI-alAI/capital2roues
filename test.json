@@ -1,0 +1,10 @@
+{
+    "clientId": 1,
+    "utilisateurId": 1,
+    "lignes": [
+        {
+            "produitId": 1,
+            "quantite": 2
+        }
+    ]
+}

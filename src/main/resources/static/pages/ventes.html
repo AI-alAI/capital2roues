@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventes - Capital 2 Roues</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* ===== SALE FORM STYLES ===== */
+        .sale-container {
+            padding: 20px;
+        }
+
+        .sale-form {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .sale-form .form-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+        }
+
+        .sale-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .sale-form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sale-form .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #636e72;
+        }
+
+        .sale-form .form-group input,
+        .sale-form .form-group select {
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        .sale-form .form-group input:focus,
+        .sale-form .form-group select:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .sale-form .form-group input:disabled {
+            background: #f8f9fa;
+            color: #636e72;
+        }
+
+        .sale-form .divider {
+            border: none;
+            border-top: 1px solid #f0f0f0;
+            margin: 16px 0;
+        }
+
+        /* ===== PRODUCT SELECTION ===== */
+        .product-selection {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 16px;
+        }
+
+        .product-selection .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .product-selection .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #636e72;
+        }
+
+        .product-selection .form-group input,
+        .product-selection .form-group select {
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+        }
+
+        .product-selection .form-group input:focus,
+        .product-selection .form-group select:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .product-selection .stock-info {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .product-selection .stock-info .available {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        /* ===== LIGNES TABLE ===== */
+        .lignes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        .lignes-table th {
+            padding: 10px 14px;
+            text-align: left;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #636e72;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .lignes-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f5f6fa;
+            vertical-align: middle;
+        }
+
+        .lignes-table tr:hover td {
+            background: #fafbfc;
+        }
+
+        .lignes-table .btn-remove {
+            background: #fce4ec;
+            color: #e94560;
+            border: none;
+            border-radius: 5px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .lignes-table .btn-remove:hover {
+            background: #f8d7da;
+        }
+
+        /* ===== TOTAL SECTION ===== */
+        .total-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            max-width: 400px;
+            margin-left: auto;
+        }
+
+        .total-section .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        .total-section .total-row .label {
+            color: #636e72;
+        }
+
+        .total-section .total-row .value {
+            font-weight: 600;
+        }
+
+        .total-section .divider {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 8px 0;
+        }
+
+        .total-section .total-row.grand-total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #e94560;
+        }
+
+        .sale-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-validate {
+            padding: 12px 40px;
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn-validate:hover {
+            background: #388E3C;
+        }
+
+        .btn-reset-sale {
+            padding: 12px 30px;
+            background: #f8f9fa;
+            color: #636e72;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn-reset-sale:hover {
+            background: #e9ecef;
+        }
+
+        /* ===== HISTORY TABLE ===== */
+        .history-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .history-filters input,
+        .history-filters select {
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+        }
+
+        .history-filters input:focus,
+        .history-filters select:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .history-filters input[type="text"] {
+            width: 200px;
+        }
+
+        .history-filters input[type="date"] {
+            width: 150px;
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.payee { background: #d4edda; color: #155724; }
+        .status-badge.annulee { background: #f8d7da; color: #721c24; }
+        .status-badge.retournee { background: #fff3cd; color: #856404; }
+
+        /* ===== CONFIRM MODAL ===== */
+        .confirm-sale-details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 10px 0;
+        }
+
+        .confirm-sale-details .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .confirm-sale-details .detail-row .label {
+            color: #636e72;
+        }
+
+        .confirm-sale-details .detail-row .value {
+            font-weight: 600;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .sale-form .form-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .product-selection {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sale-form .form-row {
+                grid-template-columns: 1fr;
+            }
+            .product-selection {
+                grid-template-columns: 1fr;
+            }
+            .total-section {
+                max-width: 100%;
+            }
+            .history-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .history-filters input[type="text"],
+            .history-filters input[type="date"] {
+                width: 100%;
+            }
+        }
+
+        /* ===== ALERT ===== */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        /* ===== LOADING ===== */
+        .loading-sales {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .loading-sales .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #e94560;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>🏍️ Capital</h2>
+            <small>2 Roues</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html"><span class="icon">📊</span> <span>Dashboard</span></a></li>
+            <li><a href="produits.html"><span class="icon">🏍️</span> <span>Produits</span></a></li>
+            <li><a href="clients.html"><span class="icon">👥</span> <span>Clients</span></a></li>
+            <li class="active"><a href="ventes.html"><span class="icon">🛒</span> <span>Ventes</span></a></li>
+            <li><a href="utilisateurs.html"><span class="icon">👤</span> <span>Utilisateurs</span></a></li>
+            <li style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <a href="#" onclick="logout()"><span class="icon">🚪</span> <span>Déconnexion</span></a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h3>🛒 Gestion des Ventes</h3>
+            <div class="user-info">
+                <span id="userEmail">Admin</span>
+                <div class="user-avatar">A</div>
+                <button class="logout-btn" onclick="logout()">Déconnexion</button>
+            </div>
+        </div>
+
+        <!-- Alert -->
+        <div id="alert" class="alert"></div>
+
+        <!-- ===== SALE FORM ===== -->
+        <div class="sale-container">
+            <div class="sale-form">
+                <div class="form-title">🛒 Nouvelle vente</div>
+
+                <!-- Client & Vendeur -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Client *</label>
+                        <select id="clientSelect">
+                            <option value="">-- Sélectionner un client --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Vendeur</label>
+                        <input type="text" id="vendeurInput" value="Admin" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Mode de paiement</label>
+                        <select id="paiementSelect">
+                            <option value="Espèces">💵 Espèces</option>
+                            <option value="Carte bancaire">💳 Carte bancaire</option>
+                            <option value="Virement">🏦 Virement</option>
+                            <option value="Chèque">🧾 Chèque</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <!-- Product Selection -->
+                <div class="product-selection">
+                    <div class="form-group">
+                        <label>Produit</label>
+                        <select id="produitSelect">
+                            <option value="">-- Sélectionner un produit --</option>
+                        </select>
+                        <div class="stock-info" id="stockInfo">Stock disponible: <span class="available">0</span></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantité</label>
+                        <input type="number" id="quantiteInput" value="1" min="1">
+                    </div>
+                    <button class="btn-add" onclick="ajouterLigne()" style="height:40px; white-space:nowrap; margin-bottom:2px;">➕ Ajouter</button>
+                </div>
+
+                <hr class="divider">
+
+                <!-- Lignes -->
+                <h5 style="margin:0 0 10px;">📋 Lignes de vente</h5>
+                <div style="overflow-x:auto;">
+                    <table class="lignes-table">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th style="text-align:center; width:80px;">Qté</th>
+                                <th style="text-align:right; width:140px;">Prix unitaire</th>
+                                <th style="text-align:right; width:140px;">Total</th>
+                                <th style="text-align:center; width:60px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lignesTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:20px; color:#b2bec3;">
+                                    Aucun produit ajouté
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Total -->
+                <div class="total-section">
+                    <div class="total-row">
+                        <span class="label">Sous-total</span>
+                        <span class="value" id="sousTotal">0.00 DH</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="label">Remise</span>
+                        <span class="value" id="remise">0.00 DH</span>
+                    </div>
+                    <hr class="divider">
+                    <div class="total-row grand-total">
+                        <span class="label">TOTAL</span>
+                        <span class="value" id="venteTotal">0.00 DH</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="sale-actions">
+                    <button class="btn-validate" onclick="validerVente()">✅ Valider la vente</button>
+                    <button class="btn-reset-sale" onclick="reinitialiserVente()">🔄 Réinitialiser</button>
+                </div>
+            </div>
+
+            <!-- ===== HISTORY ===== -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h4>📊 Historique des ventes</h4>
+                    <button class="btn-add" onclick="rafraichirVentes()" style="background:#2196F3;">🔄 Rafraîchir</button>
+                </div>
+
+                <!-- Filters -->
+                <div class="history-filters" style="padding:16px 24px; border-bottom:1px solid #f0f0f0;">
+                    <input type="text" id="searchVente" placeholder="🔍 Client / N° vente...">
+                    <input type="date" id="dateDebut">
+                    <input type="date" id="dateFin">
+                    <select id="statusFilter">
+                        <option value="">Tous les statuts</option>
+                        <option value="PAYEE">🟢 PAYÉE</option>
+                        <option value="ANNULEE">🔴 ANNULÉE</option>
+                        <option value="RETOURNEE">🟠 RETOURNÉE</option>
+                    </select>
+                    <select id="vendeurFilter">
+                        <option value="">Tous les vendeurs</option>
+                    </select>
+                    <button class="btn-filter" onclick="applyHistoryFilters()">🔍 Rechercher</button>
+                    <button class="btn-reset" onclick="resetHistoryFilters()">🔄 Réinitialiser</button>
+                </div>
+
+                <div id="loadingSales" class="loading-sales">
+                    <div class="spinner"></div>
+                    <p>Chargement des ventes...</p>
+                </div>
+
+                <div id="historyContent" style="display:none;">
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">#</th>
+                                    <th>Client</th>
+                                    <th>Vendeur</th>
+                                    <th style="text-align:right;">Total</th>
+                                    <th>Paiement</th>
+                                    <th>Date</th>
+                                    <th style="text-align:center;">Statut</th>
+                                    <th style="text-align:center; min-width:160px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ventesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-wrap">
+                        <div class="pagination-info" id="paginationInfo"></div>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <select id="pageSizeSelect" class="pagination-size" onchange="changePageSize()">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <div class="pagination-buttons" id="paginationButtons"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONFIRM MODAL ===== -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>✅ Confirmer la vente</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:16px;">Veuillez vérifier les informations avant de confirmer.</p>
+                <div class="confirm-sale-details" id="confirmDetails">
+                    <div class="detail-row">
+                        <span class="label">Client</span>
+                        <span class="value" id="confirmClient">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Produits</span>
+                        <span class="value" id="confirmProduits">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Paiement</span>
+                        <span class="value" id="confirmPaiement">-</span>
+                    </div>
+                    <div class="detail-row" style="font-size:18px; margin-top:8px; padding-top:8px; border-top:2px solid #ddd;">
+                        <span class="label" style="font-weight:700;">TOTAL</span>
+                        <span class="value" style="color:#e94560; font-size:20px;" id="confirmTotal">-</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel-modal" onclick="closeConfirmModal()">Annuler</button>
+                <button class="btn-submit" onclick="confirmVente()" style="background:#4CAF50;">✅ Confirmer la vente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>🧾 Détail de la vente #<span id="detailVenteId"></span></h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent"></div>
+            <div class="modal-footer">
+                <button class="btn-cancel-modal" onclick="closeDetailModal()">Fermer</button>
+                <button class="btn-submit" onclick="downloadPDFDetail()" style="background:#FF9800;">📄 Télécharger PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/ventes.js"></script>
+</body>
+</html>

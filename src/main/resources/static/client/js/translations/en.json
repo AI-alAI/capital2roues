@@ -1,0 +1,153 @@
+{
+    "app": {
+        "title": "Capital 2 Roues",
+        "subtitle": "Your passion, our business",
+        "brand": "🏍️ Capital 2 Roues"
+    },
+    "nav": {
+        "home": "🏠 Home",
+        "catalogue": "📦 Catalogue",
+        "panier": "🛒 Cart",
+        "commandes": "📋 Orders",
+        "profil": "👤 Profile",
+        "login": "🔐 Login",
+        "register": "Sign up",
+        "logout": "🚪 Logout",
+        "admin": "🔐 Professional Space"
+    },
+    "home": {
+        "hero": {
+            "title": "🏍️ Your passion rides with us",
+            "subtitle": "Discover our range of quality motorcycles and two-wheelers",
+            "btnCatalogue": "📦 View catalogue",
+            "btnPromotions": "🔥 Promotions"
+        },
+        "stats": {
+            "produits": "Motorcycles available",
+            "clients": "Happy clients",
+            "ventes": "Sales made",
+            "marques": "Brands available"
+        },
+        "featured": "🔥 Featured motorcycles",
+        "promotions": "🎯 Special offers",
+        "viewAll": "View all catalogue →"
+    },
+    "auth": {
+        "login": {
+            "title": "Login to your client space",
+            "email": "Email",
+            "password": "Password",
+            "submit": "Login",
+            "registerLink": "Create an account",
+            "backHome": "Back to home",
+            "error": "❌ Incorrect email or password",
+            "success": "✅ Login successful!"
+        },
+        "register": {
+            "title": "Create your client account",
+            "nom": "Last name *",
+            "prenom": "First name *",
+            "email": "Email *",
+            "telephone": "Phone",
+            "adresse": "Address",
+            "password": "Password *",
+            "confirmPassword": "Confirm password *",
+            "submit": "Sign up",
+            "loginLink": "Already have an account? Login",
+            "success": "✅ Account created successfully!",
+            "error": "❌ Error: "
+        }
+    },
+    "catalogue": {
+        "title": "📦 Our Catalogue",
+        "subtitle": "Discover our selection of motorcycles and two-wheelers",
+        "search": "🔍 Search a product...",
+        "allCategories": "All categories",
+        "sortBy": "Sort by",
+        "sortName": "Sort by name",
+        "sortPriceAsc": "Price ascending",
+        "sortPriceDesc": "Price descending",
+        "filter": "🔍 Filter",
+        "reset": "🔄 Reset",
+        "inStock": "✅ In stock",
+        "lowStock": "⚠️ Low stock",
+        "outOfStock": "❌ Out of stock",
+        "addToCart": "🛒 Add to cart",
+        "unavailable": "❌ Unavailable",
+        "added": "✅ Added!",
+        "empty": "📭 No products found",
+        "emptyHint": "Try modifying your search criteria"
+    },
+    "panier": {
+        "title": "🛒 My Cart",
+        "empty": "🛒 Your cart is empty",
+        "emptyHint": "Browse our catalogue to add products",
+        "viewCatalogue": "📦 View catalogue",
+        "total": "Total",
+        "validate": "✅ Checkout",
+        "clear": "🗑️ Clear",
+        "confirm": "Confirm your order?",
+        "success": "✅ Order placed successfully!",
+        "error": "❌ Error: "
+    },
+    "commandes": {
+        "title": "📋 My Orders",
+        "subtitle": "Track your orders status",
+        "empty": "📭 No orders",
+        "emptyHint": "You haven't placed any orders yet",
+        "viewCatalogue": "📦 View catalogue",
+        "client": "Client",
+        "products": "Products",
+        "detail": "📄 View details",
+        "pdf": "📄 PDF",
+        "status": {
+            "payee": "Paid",
+            "annulee": "Cancelled",
+            "retournee": "Returned"
+        }
+    },
+    "profil": {
+        "title": "👤 My Profile",
+        "subtitle": "Manage your personal information",
+        "nom": "Last name",
+        "prenom": "First name",
+        "email": "Email",
+        "telephone": "Phone",
+        "adresse": "Address",
+        "edit": "✏️ Edit my information",
+        "changePassword": "🔑 Change password",
+        "save": "💾 Save",
+        "cancel": "❌ Cancel",
+        "stats": "📊 My statistics",
+        "commandes": "Orders placed",
+        "total": "Total spent (DH)",
+        "moyenne": "Average cart (DH)",
+        "recentOrders": "📋 Recent orders",
+        "viewAll": "View all my orders →",
+        "noOrders": "No recent orders",
+        "success": "✅ Profile updated successfully!"
+    },
+    "footer": {
+        "about": "Your motorcycle and two-wheeler specialist since 2020",
+        "address": "📍 Casablanca, Morocco",
+        "phone": "📞 +212 5XX-XXXXXX",
+        "hours": "Mon - Fri: 9am - 7pm",
+        "hoursSat": "Sat: 10am - 5pm",
+        "hoursSun": "Sun: Closed",
+        "quickLinks": "Quick links",
+        "rights": "All rights reserved."
+    },
+    "common": {
+        "loading": "Loading...",
+        "back": "Back",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit",
+        "close": "Close",
+        "search": "Search",
+        "filter": "Filter",
+        "reset": "Reset"
+    }
+}

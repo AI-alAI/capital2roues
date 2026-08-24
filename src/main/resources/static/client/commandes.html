@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Commandes - Capital 2 Roues</title>
+    <link rel="stylesheet" href="css/client-style.css">
+    
+    <script>
+        // ============================================
+        // GESTION DE LA LANGUE (FR/EN/AR)
+        // ============================================
+        const LANG_KEY = 'preferredLanguage';
+        const translations = {
+            fr: {
+                'nav.home': '🏠 Accueil',
+                'nav.catalogue': '📦 Catalogue',
+                'nav.cart': '🛒 Panier',
+                'nav.orders': '📋 Commandes',
+                'nav.profile': '👤 Profil',
+                'nav.login': '🔐 Connexion',
+                'nav.logout': '🚪 Déconnexion',
+                'nav.register': 'S\'inscrire',
+                'commandes.title': '📋 Mes Commandes',
+                'commandes.subtitle': 'Suivez l\'état de vos commandes',
+                'commandes.empty': '📭 Aucune commande',
+                'commandes.emptyHint': 'Vous n\'avez pas encore passé de commande',
+                'commandes.viewCatalogue': '📍 Voir le catalogue',
+                'commandes.client': 'Client',
+                'commandes.products': 'Produits',
+                'commandes.detail': '📄 Voir détail',
+                'commandes.status.attente': '⏳ En attente',
+                'commandes.status.confirmee': '✅ Confirmée',
+                'commandes.status.livree': '📦 Livrée',
+                'commandes.status.annulee': '❌ Annulée',
+                'commandes.total': 'Total'
+            },
+            en: {
+                'nav.home': '🏠 Home',
+                'nav.catalogue': '📦 Catalogue',
+                'nav.cart': '🛒 Cart',
+                'nav.orders': '📋 Orders',
+                'nav.profile': '👤 Profile',
+                'nav.login': '🔐 Login',
+                'nav.logout': '🚪 Logout',
+                'nav.register': 'Sign up',
+                'commandes.title': '📋 My Orders',
+                'commandes.subtitle': 'Track your orders status',
+                'commandes.empty': '📭 No orders',
+                'commandes.emptyHint': 'You haven\'t placed any orders yet',
+                'commandes.viewCatalogue': '📍 View catalogue',
+                'commandes.client': 'Client',
+                'commandes.products': 'Products',
+                'commandes.detail': '📄 View details',
+                'commandes.status.attente': '⏳ Pending',
+                'commandes.status.confirmee': '✅ Confirmed',
+                'commandes.status.livree': '📦 Delivered',
+                'commandes.status.annulee': '❌ Cancelled',
+                'commandes.total': 'Total'
+            },
+            ar: {
+                'nav.home': '🏠 الرئيسية',
+                'nav.catalogue': '📦 الكتالوج',
+                'nav.cart': '🛒 السلة',
+                'nav.orders': '📋 الطلبات',
+                'nav.profile': '👤 الملف الشخصي',
+                'nav.login': '🔐 تسجيل الدخول',
+                'nav.logout': '🚪 تسجيل الخروج',
+                'nav.register': 'إنشاء حساب',
+                'commandes.title': '📋 طلباتي',
+                'commandes.subtitle': 'تابع حالة طلباتك',
+                'commandes.empty': '📭 لا توجد طلبات',
+                'commandes.emptyHint': 'لم تقم بتقديم أي طلب بعد',
+                'commandes.viewCatalogue': '📍 عرض الكتالوج',
+                'commandes.client': 'العميل',
+                'commandes.products': 'المنتجات',
+                'commandes.detail': '📄 عرض التفاصيل',
+                'commandes.status.attente': '⏳ قيد الانتظار',
+                'commandes.status.confirmee': '✅ مؤكدة',
+                'commandes.status.livree': '📦 تم التوصيل',
+                'commandes.status.annulee': '❌ ملغاة',
+                'commandes.total': 'المجموع'
+            }
+        };
+
+        let currentLang = localStorage.getItem(LANG_KEY) || 'fr';
+
+        function t(key) {
+            return translations[currentLang]?.[key] || key;
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const translation = t(key);
+                if (el.tagName === 'INPUT' && el.type !== 'submit') {
+                    el.placeholder = translation;
+                } else if (el.tagName === 'INPUT' && el.type === 'submit') {
+                    el.value = translation;
+                } else if (el.tagName === 'BUTTON') {
+                    el.innerHTML = translation;
+                } else {
+                    el.textContent = translation;
+                }
+            });
+            
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+            });
+            
+            // Recharger les commandes pour mettre à jour les textes dynamiques
+            if (typeof afficherCommandes === 'function') {
+                afficherCommandes();
+            }
+        }
+
+        function switchLanguage(lang) {
+            if (lang === currentLang) return;
+            currentLang = lang;
+            localStorage.setItem(LANG_KEY, lang);
+            applyTranslations();
+            
+            const selector = document.getElementById('languageSelector');
+            if (selector) selector.value = lang;
+            
+            document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+            document.body.style.textAlign = lang === 'ar' ? 'right' : 'left';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const selector = document.getElementById('languageSelector');
+            if (selector) {
+                selector.value = currentLang;
+                selector.onchange = function() {
+                    switchLanguage(this.value);
+                };
+            }
+            applyTranslations();
+            if (currentLang === 'ar') {
+                document.body.style.direction = 'rtl';
+                document.body.style.textAlign = 'right';
+            }
+            updateNavbar();
+            updatePanierCount();
+            afficherCommandes();
+        });
+
+        window.switchLanguage = switchLanguage;
+        window.t = t;
+    </script>
+    
+    <style>
+        /* ===== STYLES GLOBAUX ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+
+        /* ===== NAVBAR ===== */
+        .client-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 30px;
+            background: #1a1a2e;
+            color: #fff;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .client-navbar .brand h1 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .client-navbar .brand small {
+            color: #a0a0b1;
+            font-size: 11px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-links a {
+            color: #a0a0b1;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+            padding: 4px 10px;
+            border-radius: 5px;
+        }
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+        .nav-links a.active {
+            background: #e94560;
+        }
+        
+        .nav-links .badge {
+            background: #e94560;
+            color: #fff;
+            border-radius: 50%;
+            padding: 1px 8px;
+            font-size: 11px;
+            margin-left: 3px;
+        }
+        
+        .language-selector {
+            margin-left: 10px;
+        }
+        .language-select {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #2d2d44;
+            color: #fff;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .language-select option {
+            background: #1a1a2e;
+        }
+        
+        .user-info-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #e94560;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            color: #fff;
+        }
+        .user-name-nav {
+            font-size: 13px;
+            color: #fff;
+        }
+        .btn-logout {
+            padding: 4px 14px;
+            background: transparent;
+            border: 1px solid #e94560;
+            color: #e94560;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover {
+            background: #e94560;
+            color: #fff;
+        }
+        .btn-login {
+            padding: 6px 16px;
+            background: transparent;
+            border: 1px solid #a0a0b1;
+            color: #a0a0b1;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .btn-login:hover {
+            background: #a0a0b1;
+            color: #1a1a2e;
+        }
+
+        /* ===== HEADER ===== */
+        .header-commandes {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            text-align: center;
+            padding: 40px 20px 50px;
+        }
+        .header-commandes h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .header-commandes p {
+            color: #a0a0b1;
+            font-size: 16px;
+        }
+
+        /* ===== SECTION ===== */
+        .section-commandes {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 30px;
+        }
+
+        /* ===== COMMANDE CARD ===== */
+        .commande-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        .commande-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .commande-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .commande-id {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e94560;
+        }
+        .commande-date {
+            color: #636e72;
+            font-size: 14px;
+        }
+        .commande-total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #e94560;
+        }
+
+        .status-badge {
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .status-attente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-confirmee {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-livree {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status-annulee {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .commande-body {
+            padding-top: 10px;
+        }
+        .commande-produits {
+            margin: 5px 0 10px 0;
+        }
+        .commande-produit {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #f5f6fa;
+            font-size: 14px;
+        }
+        .commande-produit:last-child {
+            border-bottom: none;
+        }
+        .produit-nom {
+            font-weight: 600;
+        }
+        .produit-quantite {
+            color: #636e72;
+        }
+        .produit-prix {
+            font-weight: 700;
+            color: #e94560;
+        }
+
+        .commande-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-detail {
+            padding: 8px 20px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.2s;
+        }
+        .btn-detail:hover {
+            background: #d63d56;
+            transform: translateY(-2px);
+        }
+        .btn-supprimer {
+            padding: 8px 20px;
+            background: transparent;
+            color: #e94560;
+            border: 1px solid #e94560;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-supprimer:hover {
+            background: #e94560;
+            color: #fff;
+        }
+
+        /* ===== AUCUNE COMMANDE ===== */
+        .aucune-commande {
+            text-align: center;
+            padding: 80px 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .aucune-commande .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .aucune-commande h2 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .aucune-commande p {
+            color: #636e72;
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+        .btn-catalogue {
+            padding: 14px 40px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-catalogue:hover {
+            background: #d63d56;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .client-navbar {
+                padding: 10px 15px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
+            }
+            .nav-links a {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            .language-selector {
+                text-align: center;
+            }
+            .user-info-nav {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .section-commandes {
+                padding: 15px;
+            }
+            .commande-card {
+                padding: 15px;
+            }
+            .commande-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-commandes h1 {
+                font-size: 24px;
+            }
+            .aucune-commande h2 {
+                font-size: 22px;
+            }
+            .aucune-commande p {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="client-navbar">
+        <div class="brand">
+            <h1>🏍️ Capital 2 Roues</h1>
+            <small>Votre passion, notre métier</small>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" data-i18n="nav.home">🏠 Accueil</a></li>
+            <li><a href="catalogue.html" data-i18n="nav.catalogue">📦 Catalogue</a></li>
+            <li><a href="panier.html" data-i18n="nav.cart">🛒 Panier <span class="badge" id="panierCount">0</span></a></li>
+            <li><a href="commandes.html" class="active" data-i18n="nav.orders">📋 Commandes</a></li>
+            <li><a href="profil.html" data-i18n="nav.profile">👤 Profil</a></li>
+        </ul>
+        
+        <div class="language-selector">
+            <select id="languageSelector" class="language-select">
+                <option value="fr">🇫🇷 Français</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="ar">🇸🇦 العربية</option>
+            </select>
+        </div>
+        
+        <div class="user-info-nav" id="userInfo"></div>
+    </nav>
+
+    <!-- ===== HEADER ===== -->
+    <section class="header-commandes">
+        <h1 data-i18n="commandes.title">📋 Mes Commandes</h1>
+        <p data-i18n="commandes.subtitle">Suivez l'état de vos commandes</p>
+    </section>
+
+    <!-- ===== COMMANDES ===== -->
+    <section class="section-commandes" id="commandesContainer">
+        <div id="commandesContent"></div>
+    </section>
+
+    <script>
+        // ============================================
+        // AUTHENTIFICATION / NAVBAR
+        // ============================================
+        function updateNavbar() {
+            const userInfo = document.getElementById('userInfo');
+            const isLoggedIn = localStorage.getItem('clientLoggedIn') === 'true';
+            if (isLoggedIn) {
+                const prenom = localStorage.getItem('clientPrenom') || 'Client';
+                const nom = localStorage.getItem('clientNom') || '';
+                const initial = prenom.charAt(0).toUpperCase();
+                userInfo.innerHTML = `
+                    <span class="user-avatar-small">${initial}</span>
+                    <span class="user-name-nav">${prenom} ${nom}</span>
+                    <button class="btn-logout" onclick="logoutClient()" data-i18n="nav.logout">🚪 Déconnexion</button>
+                `;
+            } else {
+                userInfo.innerHTML = `
+                    <a href="login.html"><button class="btn-login" data-i18n="nav.login">🔐 Se connecter</button></a>
+                    <a href="register.html"><button class="btn-login" style="background:#e94560;color:#fff;border-color:#e94560;" data-i18n="nav.register">S'inscrire</button></a>
+                `;
+            }
+            applyTranslations();
+        }
+
+        function logoutClient() {
+            localStorage.removeItem('clientId');
+            localStorage.removeItem('clientEmail');
+            localStorage.removeItem('clientNom');
+            localStorage.removeItem('clientPrenom');
+            localStorage.removeItem('clientRole');
+            localStorage.removeItem('clientLoggedIn');
+            localStorage.removeItem('clientTelephone');
+            localStorage.removeItem('clientAdresse');
+            window.location.href = 'index.html';
+        }
+
+        // ============================================
+        // PANIER
+        // ============================================
+        function updatePanierCount() {
+            const panier = JSON.parse(localStorage.getItem('panier')) || [];
+            const total = panier.reduce((sum, p) => sum + p.quantite, 0);
+            const badge = document.getElementById('panierCount');
+            if (badge) badge.textContent = total;
+        }
+
+        // ============================================
+        // FORMAT PRIX
+        // ============================================
+        function formatPrice(price) {
+            return Number(price || 0).toLocaleString('fr-FR', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // ============================================
+        // RÉCUPÉRER LES COMMANDES (localStorage)
+        // ============================================
+        function getCommandes() {
+            try {
+                const commandes = JSON.parse(localStorage.getItem('commandes')) || [];
+                console.log('📦 Commandes chargées:', commandes.length);
+                return commandes;
+            } catch (error) {
+                console.error('Erreur chargement commandes:', error);
+                return [];
+            }
+        }
+
+        // ============================================
+        // AFFICHER LES COMMANDES
+        // ============================================
+        function afficherCommandes() {
+            const container = document.getElementById('commandesContent');
+            const isLoggedIn = localStorage.getItem('clientLoggedIn') === 'true';
+
+            // Vérifier si l'utilisateur est connecté
+            if (!isLoggedIn) {
+                container.innerHTML = `
+                    <div class="aucune-commande">
+                        <div class="icon">🔐</div>
+                        <h2>Connectez-vous pour voir vos commandes</h2>
+                        <p>Vous devez être connecté pour accéder à vos commandes</p>
+                        <a href="login.html" class="btn-catalogue">🔐 Se connecter</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const commandes = getCommandes();
+
+            if (commandes.length === 0) {
+                container.innerHTML = `
+                    <div class="aucune-commande">
+                        <div class="icon">📋</div>
+                        <h2 data-i18n="commandes.empty">Aucune commande</h2>
+                        <p data-i18n="commandes.emptyHint">Vous n'avez pas encore passé de commande</p>
+                        <a href="catalogue.html" class="btn-catalogue" data-i18n="commandes.viewCatalogue">📍 Voir le catalogue</a>
+                    </div>
+                `;
+                applyTranslations();
+                return;
+            }
+
+            // Trier par date (plus récent en premier)
+            commandes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let html = '';
+            commandes.forEach((cmd, index) => {
+                // Déterminer le statut
+                let statusClass = 'status-attente';
+                let statusText = t('commandes.status.attente');
+                if (cmd.statut === 'Confirmée' || cmd.statut === 'Confirmé') {
+                    statusClass = 'status-confirmee';
+                    statusText = t('commandes.status.confirmee');
+                } else if (cmd.statut === 'Livrée' || cmd.statut === 'Livré') {
+                    statusClass = 'status-livree';
+                    statusText = t('commandes.status.livree');
+                } else if (cmd.statut === 'Annulée' || cmd.statut === 'Annulé') {
+                    statusClass = 'status-annulee';
+                    statusText = t('commandes.status.annulee');
+                }
+
+                const totalArticles = cmd.articles ? cmd.articles.reduce((sum, a) => sum + a.quantite, 0) : 0;
+                const id = cmd.id || (index + 1);
+
+                html += `
+                    <div class="commande-card">
+                        <div class="commande-header">
+                            <div>
+                                <span class="commande-id">#${id}</span>
+                                <span class="commande-date">📅 ${cmd.date || 'Date inconnue'}</span>
+                            </div>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                            <span class="commande-total">${formatPrice(cmd.total || 0)} DH</span>
+                        </div>
+
+                        <div class="commande-body">
+                            <div class="commande-produits">
+                                ${cmd.articles && cmd.articles.length > 0 ? cmd.articles.map(article => `
+                                    <div class="commande-produit">
+                                        <span class="produit-nom">🏍️ ${article.nom || 'Produit'}</span>
+                                        <span class="produit-quantite">x ${article.quantite}</span>
+                                        <span class="produit-prix">${formatPrice(article.prix * article.quantite)} DH</span>
+                                    </div>
+                                `).join('') : '<p style="color:#636e72;">Aucun article</p>'}
+                            </div>
+
+                            <div style="display:flex;justify-content:space-between;font-size:14px;color:#636e72;margin-top:5px;">
+                                <span>${totalArticles} article${totalArticles > 1 ? 's' : ''}</span>
+                            </div>
+
+                            <div class="commande-footer">
+                                <button class="btn-supprimer" onclick="supprimerCommande(${id})">🗑️ Supprimer</button>
+                                <button class="btn-detail" onclick="voirDetailCommande(${id})" data-i18n="commandes.detail">📄 Voir détail</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            applyTranslations();
+        }
+
+        // ============================================
+        // VOIR DÉTAIL D'UNE COMMANDE
+        // ============================================
+        function voirDetailCommande(id) {
+            const commandes = getCommandes();
+            const cmd = commandes.find(c => c.id === id);
+            if (!cmd) {
+                alert('Commande non trouvée');
+                return;
+            }
+
+            const articles = cmd.articles ? cmd.articles.map(a => 
+                `- ${a.nom} x ${a.quantite} = ${formatPrice(a.prix * a.quantite)} DH`
+            ).join('\n') : 'Aucun article';
+
+            alert(
+                `📋 Détail de la commande #${id}\n\n` +
+                `📅 Date : ${cmd.date}\n` +
+                `📦 Statut : ${cmd.statut || 'En attente'}\n` +
+                `\n🛒 Articles :\n${articles}\n\n` +
+                `💰 Total : ${formatPrice(cmd.total)} DH`
+            );
+        }
+
+        // ============================================
+        // SUPPRIMER UNE COMMANDE
+        // ============================================
+        function supprimerCommande(id) {
+            if (confirm('Voulez-vous vraiment supprimer cette commande ?')) {
+                let commandes = getCommandes();
+                commandes = commandes.filter(c => c.id !== id);
+                localStorage.setItem('commandes', JSON.stringify(commandes));
+                afficherCommandes();
+            }
+        }
+
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        // La fonction est déjà appelée dans le DOMContentLoaded
+
+        // Exposer les fonctions globalement
+        window.logoutClient = logoutClient;
+        window.supprimerCommande = supprimerCommande;
+        window.voirDetailCommande = voirDetailCommande;
+        window.afficherCommandes = afficherCommandes;
+    </script>
+
+</body>
+</html>

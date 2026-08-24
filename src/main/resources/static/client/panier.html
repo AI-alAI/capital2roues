@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panier - Capital 2 Roues</title>
+    <link rel="stylesheet" href="css/client-style.css">
+    
+    <script>
+        // ============================================
+        // GESTION DE LA LANGUE (FR/EN/AR)
+        // ============================================
+        const LANG_KEY = 'preferredLanguage';
+        const translations = {
+            fr: {
+                'nav.home': '🏠 Accueil',
+                'nav.catalogue': '📦 Catalogue',
+                'nav.cart': '🛒 Panier',
+                'nav.orders': '📋 Commandes',
+                'nav.profile': '👤 Profil',
+                'nav.login': '🔐 Connexion',
+                'nav.logout': '🚪 Déconnexion',
+                'nav.register': 'S\'inscrire',
+                'panier.title': '🛒 Mon Panier',
+                'panier.empty': '🛒 Votre panier est vide',
+                'panier.emptyHint': 'Parcourez notre catalogue pour ajouter des produits',
+                'panier.viewCatalogue': '📦 Voir le catalogue',
+                'panier.total': 'Total',
+                'panier.validate': '✅ Valider la commande',
+                'panier.clear': '🗑️ Vider',
+                'panier.confirm': 'Confirmer votre commande ?',
+                'panier.success': '✅ Commande validée avec succès !',
+                'panier.error': '❌ Erreur: ',
+                'panier.loginRequired': 'Vous devez être connecté pour valider votre commande. Voulez-vous vous connecter ?',
+                'panier.loginToAdd': 'Vous devez être connecté pour ajouter au panier. Voulez-vous vous connecter ?'
+            },
+            en: {
+                'nav.home': '🏠 Home',
+                'nav.catalogue': '📦 Catalogue',
+                'nav.cart': '🛒 Cart',
+                'nav.orders': '📋 Orders',
+                'nav.profile': '👤 Profile',
+                'nav.login': '🔐 Login',
+                'nav.logout': '🚪 Logout',
+                'nav.register': 'Sign up',
+                'panier.title': '🛒 My Cart',
+                'panier.empty': '🛒 Your cart is empty',
+                'panier.emptyHint': 'Browse our catalogue to add products',
+                'panier.viewCatalogue': '📦 View catalogue',
+                'panier.total': 'Total',
+                'panier.validate': '✅ Checkout',
+                'panier.clear': '🗑️ Clear',
+                'panier.confirm': 'Confirm your order?',
+                'panier.success': '✅ Order placed successfully!',
+                'panier.error': '❌ Error: ',
+                'panier.loginRequired': 'You must be logged in to checkout. Would you like to login?',
+                'panier.loginToAdd': 'You must be logged in to add to cart. Would you like to login?'
+            },
+            ar: {
+                'nav.home': '🏠 الرئيسية',
+                'nav.catalogue': '📦 الكتالوج',
+                'nav.cart': '🛒 السلة',
+                'nav.orders': '📋 الطلبات',
+                'nav.profile': '👤 الملف الشخصي',
+                'nav.login': '🔐 تسجيل الدخول',
+                'nav.logout': '🚪 تسجيل الخروج',
+                'nav.register': 'إنشاء حساب',
+                'panier.title': '🛒 سلتي',
+                'panier.empty': '🛒 سلتك فارغة',
+                'panier.emptyHint': 'تصفح الكتالوج الخاص بنا لإضافة منتجات',
+                'panier.viewCatalogue': '📦 عرض الكتالوج',
+                'panier.total': 'المجموع',
+                'panier.validate': '✅ تأكيد الطلب',
+                'panier.clear': '🗑️ إفراغ',
+                'panier.confirm': 'تأكيد طلبك؟',
+                'panier.success': '✅ تم تأكيد الطلب بنجاح!',
+                'panier.error': '❌ خطأ: ',
+                'panier.loginRequired': 'يجب عليك تسجيل الدخول لتأكيد طلبك. هل تريد تسجيل الدخول؟',
+                'panier.loginToAdd': 'يجب عليك تسجيل الدخول لإضافة إلى السلة. هل تريد تسجيل الدخول؟'
+            }
+        };
+
+        let currentLang = localStorage.getItem(LANG_KEY) || 'fr';
+
+        function t(key) {
+            return translations[currentLang]?.[key] || key;
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const translation = t(key);
+                if (el.tagName === 'INPUT' && el.type !== 'submit') {
+                    el.placeholder = translation;
+                } else if (el.tagName === 'INPUT' && el.type === 'submit') {
+                    el.value = translation;
+                } else if (el.tagName === 'BUTTON') {
+                    el.innerHTML = translation;
+                } else {
+                    el.textContent = translation;
+                }
+            });
+            
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+            });
+        }
+
+        function switchLanguage(lang) {
+            if (lang === currentLang) return;
+            currentLang = lang;
+            localStorage.setItem(LANG_KEY, lang);
+            applyTranslations();
+            
+            const selector = document.getElementById('languageSelector');
+            if (selector) selector.value = lang;
+            
+            document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+            document.body.style.textAlign = lang === 'ar' ? 'right' : 'left';
+            
+            if (typeof chargerPanier === 'function') {
+                chargerPanier();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const selector = document.getElementById('languageSelector');
+            if (selector) {
+                selector.value = currentLang;
+                selector.onchange = function() {
+                    switchLanguage(this.value);
+                };
+            }
+            applyTranslations();
+            if (currentLang === 'ar') {
+                document.body.style.direction = 'rtl';
+                document.body.style.textAlign = 'right';
+            }
+        });
+
+        window.switchLanguage = switchLanguage;
+        window.t = t;
+        window.applyTranslations = applyTranslations;
+    </script>
+    
+    <style>
+        .language-selector {
+            margin-left: 15px;
+        }
+        .language-select {
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .panier-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .panier-item .item-info {
+            flex: 1;
+            min-width: 150px;
+        }
+        .panier-item .item-info h4 {
+            margin: 0;
+        }
+        .panier-item .item-info .item-price {
+            color: #888;
+            font-size: 13px;
+        }
+        .panier-item .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panier-item .item-actions button {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #fff;
+            font-size: 16px;
+        }
+        .panier-item .item-actions button:hover {
+            background: #e94560;
+            color: #fff;
+            border-color: #e94560;
+        }
+        .panier-item .item-actions .qty {
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+        .panier-item .item-total {
+            font-weight: 700;
+            color: #e94560;
+            min-width: 100px;
+            text-align: right;
+        }
+        .panier-item .btn-remove {
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 12px;
+            cursor: pointer;
+        }
+        .panier-item .btn-remove:hover {
+            background: #c62843;
+        }
+        .btn-secondary-cart {
+            padding: 12px 25px;
+            color: #333;
+            border-color: #ddd;
+            background: transparent;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-secondary-cart:hover {
+            background: #f8f9fa;
+        }
+        .btn-primary-cart {
+            padding: 12px 40px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-primary-cart:hover {
+            background: #d63d56;
+        }
+        .cart-total-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .cart-total-box .total-label {
+            font-size: 14px;
+            color: #636e72;
+        }
+        .cart-total-box .total-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #e94560;
+        }
+        .cart-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== STYLES GLOBAUX ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+
+        .client-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 30px;
+            background: #1a1a2e;
+            color: #fff;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .client-navbar .brand h1 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .client-navbar .brand small {
+            color: #a0a0b1;
+            font-size: 11px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-links a {
+            color: #a0a0b1;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+            padding: 4px 10px;
+            border-radius: 5px;
+        }
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+        .nav-links a.active {
+            background: #e94560;
+        }
+        
+        .nav-links .badge {
+            background: #e94560;
+            color: #fff;
+            border-radius: 50%;
+            padding: 1px 8px;
+            font-size: 11px;
+            margin-left: 3px;
+        }
+        
+        .user-info-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #e94560;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            color: #fff;
+        }
+        .user-name-nav {
+            font-size: 13px;
+            color: #fff;
+        }
+        .btn-logout {
+            padding: 4px 14px;
+            background: transparent;
+            border: 1px solid #e94560;
+            color: #e94560;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover {
+            background: #e94560;
+            color: #fff;
+        }
+        .btn-login {
+            padding: 6px 16px;
+            background: transparent;
+            border: 1px solid #a0a0b1;
+            color: #a0a0b1;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .btn-login:hover {
+            background: #a0a0b1;
+            color: #1a1a2e;
+        }
+
+        .products-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 30px;
+        }
+
+        .header-panier {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            text-align: center;
+            padding: 40px 20px 50px;
+        }
+        .header-panier h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            padding: 12px 30px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background: #d63d56;
+        }
+
+        .panier-vide {
+            text-align: center;
+            padding: 80px 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .panier-vide .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .panier-vide h3 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .panier-vide p {
+            color: #636e72;
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        .panier-contenu {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .client-navbar {
+                padding: 10px 15px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
+            }
+            .nav-links a {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            .user-info-nav {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .products-section {
+                padding: 15px;
+            }
+            .panier-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .panier-item .item-total {
+                text-align: left;
+            }
+            .cart-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            .cart-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="client-navbar">
+        <div class="brand">
+            <h1>🏍️ Capital 2 Roues</h1>
+            <small>Votre passion, notre métier</small>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" data-i18n="nav.home">🏠 Accueil</a></li>
+            <li><a href="catalogue.html" data-i18n="nav.catalogue">📦 Catalogue</a></li>
+            <li><a href="panier.html" class="active" data-i18n="nav.cart">🛒 Panier <span class="badge" id="panierCount">0</span></a></li>
+            <li><a href="commandes.html" data-i18n="nav.orders">📋 Commandes</a></li>
+            <li><a href="profil.html" data-i18n="nav.profile">👤 Profil</a></li>
+        </ul>
+        
+        <div class="language-selector">
+            <select id="languageSelector" class="language-select">
+                <option value="fr">🇫🇷 Français</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="ar">🇸🇦 العربية</option>
+            </select>
+        </div>
+        
+        <div class="user-info-nav" id="userInfo"></div>
+    </nav>
+
+    <!-- ===== HEADER ===== -->
+    <section class="header-panier">
+        <h1 data-i18n="panier.title">🛒 Mon Panier</h1>
+    </section>
+
+    <!-- ===== PANIER ===== -->
+    <section class="products-section">
+        <div id="panierContainer">
+            <div id="panierVide" class="panier-vide">
+                <div class="icon">🛒</div>
+                <h3 data-i18n="panier.empty">Votre panier est vide</h3>
+                <p data-i18n="panier.emptyHint">Parcourez notre catalogue pour ajouter des produits</p>
+                <a href="catalogue.html" class="btn-primary" data-i18n="panier.viewCatalogue">📦 Voir le catalogue</a>
+            </div>
+            
+            <div id="panierContenu" class="panier-contenu" style="display:none;">
+                <div id="panierItems"></div>
+                
+                <div class="cart-total-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                        <div>
+                            <span class="total-label" data-i18n="panier.total">Total</span>
+                            <div class="total-value">
+                                <span id="panierTotal">0.00</span> DH
+                            </div>
+                        </div>
+                        <div class="cart-actions">
+                            <button onclick="viderPanier()" class="btn-secondary-cart" data-i18n="panier.clear">
+                                🗑️ Vider
+                            </button>
+                            <button onclick="validerPanier()" class="btn-primary-cart" data-i18n="panier.validate">
+                                ✅ Valider la commande
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SCRIPT PANIER ===== -->
+    <script src="js/panier.js" defer></script>
+
+</body>
+</html>

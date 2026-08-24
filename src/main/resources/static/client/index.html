@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capital 2 Roues - Motos & Deux-Roues</title>
+    <link rel="stylesheet" href="css/client-style.css">
+    
+    <script>
+        // ============================================
+        // GESTION DE LA LANGUE (FR/EN/AR)
+        // ============================================
+        const LANG_KEY = 'preferredLanguage';
+        const translations = {
+            fr: {
+                'nav.home': '🏠 Accueil',
+                'nav.catalogue': '📦 Catalogue',
+                'nav.cart': '🛒 Panier',
+                'nav.orders': '📋 Commandes',
+                'nav.profile': '👤 Profil',
+                'nav.login': '🔐 Connexion',
+                'nav.logout': '🚪 Déconnexion',
+                'nav.register': 'S\'inscrire',
+                'hero.title': '🏍️ Votre passion roule avec nous',
+                'hero.subtitle': 'Découvrez notre gamme de motos et deux-roues de qualité',
+                'hero.btnCatalogue': '📦 Voir le catalogue',
+                'hero.btnPromotions': '🔥 Promotions',
+                'stats.produits': 'Motos disponibles',
+                'stats.clients': 'Clients satisfaits',
+                'stats.ventes': 'Ventes réalisées',
+                'stats.marques': 'Marques disponibles',
+                'featured.title': '🔥 Motos en vedette',
+                'promo.title': '🎯 Offres spéciales',
+                'viewAll': 'Voir tout le catalogue →',
+                'footer.about': 'Votre spécialiste motos et deux-roues depuis 2020',
+                'footer.address': '📍 Casablanca, Maroc',
+                'footer.phone': '📞 +212 5XX-XXXXXX',
+                'footer.quickLinks': 'Liens rapides',
+                'footer.hours': 'Lun - Ven : 9h - 19h',
+                'footer.hoursSat': 'Sam : 10h - 17h',
+                'footer.hoursSun': 'Dim : Fermé',
+                'footer.rights': 'Tous droits réservés.',
+                'loading': 'Chargement...'
+            },
+            en: {
+                'nav.home': '🏠 Home',
+                'nav.catalogue': '📦 Catalogue',
+                'nav.cart': '🛒 Cart',
+                'nav.orders': '📋 Orders',
+                'nav.profile': '👤 Profile',
+                'nav.login': '🔐 Login',
+                'nav.logout': '🚪 Logout',
+                'nav.register': 'Sign up',
+                'hero.title': '🏍️ Your passion rides with us',
+                'hero.subtitle': 'Discover our range of quality motorcycles and two-wheelers',
+                'hero.btnCatalogue': '📦 View catalogue',
+                'hero.btnPromotions': '🔥 Promotions',
+                'stats.produits': 'Motorcycles available',
+                'stats.clients': 'Happy clients',
+                'stats.ventes': 'Sales made',
+                'stats.marques': 'Brands available',
+                'featured.title': '🔥 Featured motorcycles',
+                'promo.title': '🎯 Special offers',
+                'viewAll': 'View all catalogue →',
+                'footer.about': 'Your motorcycle and two-wheeler specialist since 2020',
+                'footer.address': '📍 Casablanca, Morocco',
+                'footer.phone': '📞 +212 5XX-XXXXXX',
+                'footer.quickLinks': 'Quick links',
+                'footer.hours': 'Mon - Fri: 9am - 7pm',
+                'footer.hoursSat': 'Sat: 10am - 5pm',
+                'footer.hoursSun': 'Sun: Closed',
+                'footer.rights': 'All rights reserved.',
+                'loading': 'Loading...'
+            },
+            ar: {
+                'nav.home': '🏠 الرئيسية',
+                'nav.catalogue': '📦 الكتالوج',
+                'nav.cart': '🛒 السلة',
+                'nav.orders': '📋 الطلبات',
+                'nav.profile': '👤 الملف الشخصي',
+                'nav.login': '🔐 تسجيل الدخول',
+                'nav.logout': '🚪 تسجيل الخروج',
+                'nav.register': 'إنشاء حساب',
+                'hero.title': '🏍️ شغفك يركب معنا',
+                'hero.subtitle': 'اكتشف مجموعتنا من الدراجات النارية عالية الجودة',
+                'hero.btnCatalogue': '📦 عرض الكتالوج',
+                'hero.btnPromotions': '🔥 العروض',
+                'stats.produits': 'دراجات متوفرة',
+                'stats.clients': 'عملاء سعداء',
+                'stats.ventes': 'مبيعات محققة',
+                'stats.marques': 'علامات تجارية',
+                'featured.title': '🔥 دراجات مميزة',
+                'promo.title': '🎯 عروض خاصة',
+                'viewAll': 'عرض الكتالوج كاملاً →',
+                'footer.about': 'متخصص في الدراجات النارية منذ 2020',
+                'footer.address': '📍 الدار البيضاء، المغرب',
+                'footer.phone': '📞 +212 5XX-XXXXXX',
+                'footer.quickLinks': 'روابط سريعة',
+                'footer.hours': 'الإثنين - الجمعة: 9ص - 7م',
+                'footer.hoursSat': 'السبت: 10ص - 5م',
+                'footer.hoursSun': 'الأحد: مغلق',
+                'footer.rights': 'جميع الحقوق محفوظة.',
+                'loading': 'جاري التحميل...'
+            }
+        };
+
+        let currentLang = localStorage.getItem(LANG_KEY) || 'fr';
+
+        function t(key) {
+            return translations[currentLang]?.[key] || key;
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const translation = t(key);
+                if (el.tagName === 'INPUT' && el.type !== 'submit') {
+                    el.placeholder = translation;
+                } else if (el.tagName === 'INPUT' && el.type === 'submit') {
+                    el.value = translation;
+                } else if (el.tagName === 'BUTTON') {
+                    el.innerHTML = translation;
+                } else {
+                    el.textContent = translation;
+                }
+            });
+            
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+            });
+        }
+
+        function switchLanguage(lang) {
+            if (lang === currentLang) return;
+            currentLang = lang;
+            localStorage.setItem(LANG_KEY, lang);
+            applyTranslations();
+            
+            const selector = document.getElementById('languageSelector');
+            if (selector) selector.value = lang;
+            
+            document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+            document.body.style.textAlign = lang === 'ar' ? 'right' : 'left';
+            
+            if (typeof loadStats === 'function') loadStats();
+            if (typeof loadFeaturedProducts === 'function') loadFeaturedProducts();
+            if (typeof loadPromotions === 'function') loadPromotions();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const selector = document.getElementById('languageSelector');
+            if (selector) {
+                selector.value = currentLang;
+                selector.onchange = function() {
+                    switchLanguage(this.value);
+                };
+            }
+            applyTranslations();
+            if (currentLang === 'ar') {
+                document.body.style.direction = 'rtl';
+                document.body.style.textAlign = 'right';
+            }
+            if (typeof loadStats === 'function') loadStats();
+            if (typeof loadFeaturedProducts === 'function') loadFeaturedProducts();
+            if (typeof loadPromotions === 'function') loadPromotions();
+            if (typeof updateNavbar === 'function') updateNavbar();
+            if (typeof updatePanierCount === 'function') updatePanierCount();
+            if (typeof initMoto3D === 'function') initMoto3D();
+        });
+
+        window.switchLanguage = switchLanguage;
+        window.t = t;
+    </script>
+    
+    <style>
+        .language-selector {
+            margin-left: 15px;
+        }
+        .language-select {
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* ===== HERO 3D ===== */
+        .hero-3d {
+            position: relative;
+            overflow: hidden;
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+        }
+        .hero-3d-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 20px;
+        }
+        .hero-3d-content {
+            text-align: left;
+        }
+        .hero-3d-content h1 {
+            font-size: 44px;
+            line-height: 1.2;
+        }
+        .hero-3d-content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        /* ===== MOTO 3D ===== */
+        .hero-3d-moto {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 800px;
+        }
+        .moto-wrapper {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+        .moto-shadow {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 25px;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transition: all 0.2s ease-out;
+        }
+        .moto-text {
+            font-size: 120px;
+            text-align: center;
+            line-height: 280px;
+            filter: drop-shadow(0 10px 30px rgba(233, 69, 96, 0.3));
+            animation: floatMoto 3s ease-in-out infinite;
+            user-select: none;
+        }
+        @keyframes floatMoto {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .moto-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+        .moto-wheel {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            animation: spinWheel 4s linear infinite;
+        }
+        .front-wheel { bottom: 10%; right: 15%; }
+        .back-wheel { bottom: 10%; left: 15%; }
+        @keyframes spinWheel {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .moto-headlight {
+            position: absolute;
+            top: 25%;
+            right: 5%;
+            width: 10%;
+            height: 6%;
+            background: radial-gradient(circle, rgba(255,215,0,0.3), transparent);
+            border-radius: 50%;
+            animation: headlightGlow 2s ease-in-out infinite;
+        }
+        @keyframes headlightGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+        .moto-exhaust {
+            position: absolute;
+            bottom: 20%;
+            left: 5%;
+            width: 6%;
+            height: 12%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+        }
+        .moto-seat {
+            position: absolute;
+            top: 30%;
+            left: 20%;
+            width: 25%;
+            height: 6%;
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px 15px 5px 5px;
+        }
+        .moto-handlebar {
+            position: absolute;
+            top: 22%;
+            right: 20%;
+            width: 15%;
+            height: 3px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 2px;
+            transform: rotate(15deg);
+        }
+        .moto-front {
+            position: absolute;
+            top: 28%;
+            right: 8%;
+            width: 35%;
+            height: 8%;
+            background: linear-gradient(90deg, transparent, rgba(233, 69, 96, 0.15));
+            border-radius: 50%;
+        }
+        .moto-back {
+            position: absolute;
+            bottom: 15%;
+            left: 5%;
+            width: 25%;
+            height: 6%;
+            background: linear-gradient(90deg, rgba(233, 69, 96, 0.15), transparent);
+            border-radius: 50%;
+        }
+        
+        @media (max-width: 992px) {
+            .hero-3d-container { grid-template-columns: 1fr; text-align: center; }
+            .hero-3d-content { text-align: center; }
+            .hero-3d-content h1 { font-size: 32px; }
+            .moto-wrapper { width: 200px; height: 200px; }
+            .moto-text { font-size: 80px; line-height: 200px; }
+            .moto-shadow { width: 120px; height: 20px; }
+        }
+        @media (max-width: 576px) {
+            .hero-3d-content h1 { font-size: 24px; }
+            .moto-wrapper { width: 150px; height: 150px; }
+            .moto-text { font-size: 60px; line-height: 150px; }
+            .moto-shadow { width: 80px; height: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="client-navbar">
+        <div class="brand">
+            <h1>🏍️ Capital 2 Roues</h1>
+            <small>Votre passion, notre métier</small>
+        </div>
+      <ul class="nav-links">
+    <li><a href="index.html">🏠 Accueil</a></li>
+    <li><a href="catalogue.html">📦 Catalogue</a></li>
+    <li><a href="panier.html">🛒 Panier <span class="badge" id="panierCount">0</span></a></li>
+    <li><a href="commandes.html">📋 Commandes</a></li>
+    <li><a href="profil.html">👤 Profil</a></li>
+    <li><a href="reclamations.html">📋 Réclamations</a></li>  <!-- AJOUTER CETTE LIGNE -->
+</ul>
+        
+        <div class="language-selector">
+            <select id="languageSelector" class="language-select">
+                <option value="fr">🇫🇷 Français</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="ar">🇸🇦 العربية</option>
+            </select>
+        </div>
+        
+        <div class="user-info-nav" id="userInfo"></div>
+    </nav>
+
+    <!-- ===== HERO AVEC MOTO 3D ===== -->
+    <section class="hero-client hero-3d">
+        <div class="hero-3d-container">
+            <!-- Texte -->
+            <div class="hero-3d-content">
+                <h1 data-i18n="hero.title">🏍️ Votre passion roule avec nous</h1>
+                <p data-i18n="hero.subtitle">Découvrez notre gamme de motos et deux-roues de qualité</p>
+                <div class="hero-buttons">
+                    <a href="catalogue.html" class="btn-primary" data-i18n="hero.btnCatalogue">📦 Voir le catalogue</a>
+                    <a href="#promotions" class="btn-secondary" data-i18n="hero.btnPromotions">🔥 Promotions</a>
+                </div>
+            </div>
+            
+            <!-- Moto 3D -->
+            <div class="hero-3d-moto" id="moto3d">
+                <div class="moto-wrapper" id="motoWrapper">
+                    <div class="moto-shadow" id="motoShadow"></div>
+                    <div class="moto-body">
+                        <div class="moto-text">🏍️</div>
+                        <div class="moto-front"></div>
+                        <div class="moto-back"></div>
+                        <div class="moto-wheel front-wheel"></div>
+                        <div class="moto-wheel back-wheel"></div>
+                        <div class="moto-handlebar"></div>
+                        <div class="moto-seat"></div>
+                        <div class="moto-exhaust"></div>
+                        <div class="moto-headlight"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STATS ===== -->
+    <section class="stats-client">
+        <div class="stat-item">
+            <span class="stat-number" id="nbProduits">0</span>
+            <span class="stat-label" data-i18n="stats.produits">Motos disponibles</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="nbClients">0</span>
+            <span class="stat-label" data-i18n="stats.clients">Clients satisfaits</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="nbVentes">0</span>
+            <span class="stat-label" data-i18n="stats.ventes">Ventes réalisées</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="nbMarques">0</span>
+            <span class="stat-label" data-i18n="stats.marques">Marques disponibles</span>
+        </div>
+    </section>
+
+    <!-- ===== PRODUITS EN VEDETTE ===== -->
+    <section class="products-section">
+        <h2 data-i18n="featured.title">🔥 Motos en vedette</h2>
+        <div class="product-grid" id="featuredProducts">
+            <div class="loading" data-i18n="loading">Chargement...</div>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="catalogue.html" class="btn-primary" data-i18n="viewAll">Voir tout le catalogue →</a>
+        </div>
+    </section>
+
+    <!-- ===== PROMOTIONS ===== -->
+    <section class="products-section" id="promotions" style="padding-top: 0;">
+        <h2 data-i18n="promo.title">🎯 Offres spéciales</h2>
+        <div class="product-grid" id="promoProducts">
+            <div class="loading" data-i18n="loading">Chargement...</div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="client-footer">
+        <div class="footer-grid">
+            <div>
+                <h3>🏍️ Capital 2 Roues</h3>
+                <p data-i18n="footer.about">Votre spécialiste motos et deux-roues depuis 2020</p>
+                <p data-i18n="footer.address">📍 Casablanca, Maroc</p>
+                <p data-i18n="footer.phone">📞 +212 5XX-XXXXXX</p>
+            </div>
+            <div>
+                <h4 data-i18n="footer.quickLinks">Liens rapides</h4>
+                <a href="catalogue.html" data-i18n="nav.catalogue">📦 Catalogue</a>
+                <a href="panier.html" data-i18n="nav.cart">🛒 Panier</a>
+                <a href="commandes.html" data-i18n="nav.orders">📋 Commandes</a>
+                <a href="profil.html" data-i18n="nav.profile">👤 Profil</a>
+            </div>
+            <div>
+                <h4>Horaires</h4>
+                <p data-i18n="footer.hours">Lun - Ven : 9h - 19h</p>
+                <p data-i18n="footer.hoursSat">Sam : 10h - 17h</p>
+                <p data-i18n="footer.hoursSun">Dim : Fermé</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p data-i18n="footer.rights">&copy; 2026 Capital 2 Roues. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let isLoggedIn = localStorage.getItem('clientLoggedIn') === 'true';
+
+        // ===== AUTHENTIFICATION =====
+        function updateNavbar() {
+            const userInfo = document.getElementById('userInfo');
+            if (isLoggedIn) {
+                const nom = localStorage.getItem('clientPrenom') || 'Client';
+                const initial = nom.charAt(0).toUpperCase();
+                userInfo.innerHTML = `
+                    <div class="user-avatar-small">${initial}</div>
+                    <span class="user-name-nav">${nom}</span>
+                    <button class="btn-logout" onclick="logoutClient()" data-i18n="nav.logout">🚪 Déconnexion</button>
+                `;
+            } else {
+                userInfo.innerHTML = `
+                    <a href="login.html"><button class="btn-login" data-i18n="nav.login">🔐 Se connecter</button></a>
+                    <a href="register.html"><button class="btn-login" style="background:#e94560;color:#fff;" data-i18n="nav.register">S'inscrire</button></a>
+                `;
+            }
+            applyTranslations();
+        }
+
+        function logoutClient() {
+            localStorage.removeItem('clientId');
+            localStorage.removeItem('clientEmail');
+            localStorage.removeItem('clientNom');
+            localStorage.removeItem('clientPrenom');
+            localStorage.removeItem('clientRole');
+            localStorage.removeItem('clientLoggedIn');
+            window.location.href = 'index.html';
+        }
+
+        // ===== PANIER =====
+        function updatePanierCount() {
+            const panier = JSON.parse(localStorage.getItem('panier')) || [];
+            const total = panier.reduce((sum, p) => sum + p.quantite, 0);
+            const badge = document.getElementById('panierCount');
+            if (badge) badge.textContent = total;
+        }
+
+        // ===== STATISTIQUES =====
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/statistiques/dashboard`);
+                if (!response.ok) throw new Error('Erreur chargement stats');
+                const data = await response.json();
+                
+                document.getElementById('nbProduits').textContent = data.nombreProduits || 0;
+                document.getElementById('nbClients').textContent = data.nombreClients || 0;
+                document.getElementById('nbVentes').textContent = data.nombreVentes || 0;
+                document.getElementById('nbMarques').textContent = data.topProduits ? data.topProduits.length : 0;
+            } catch (error) {
+                console.error('Erreur stats:', error);
+            }
+        }
+
+        // ===== PRODUITS EN VEDETTE =====
+        async function loadFeaturedProducts() {
+            const container = document.getElementById('featuredProducts');
+            try {
+                const response = await fetch(`${API_BASE}/produits?size=100`);
+                if (!response.ok) throw new Error('Erreur chargement');
+                const data = await response.json();
+                const products = data.content || [];
+                
+                if (products.length === 0) {
+                    container.innerHTML = `<p style="text-align:center;color:#888;" data-i18n="loading">Aucun produit disponible</p>`;
+                    return;
+                }
+                
+                const featured = products.slice(0, 4);
+                container.innerHTML = featured.map(p => `
+                    <div class="product-card">
+                        <div class="image">🏍️</div>
+                        <div class="info">
+                            <h3>${p.nom}</h3>
+                            <div class="ref">${p.reference}</div>
+                            <div class="prix">${p.prixVente.toLocaleString('fr-FR')} DH</div>
+                            <div class="stock">${p.categorieNom || 'Non catégorisé'}</div>
+                            <button class="btn-add-cart" onclick="ajouterAuPanier(${p.id}, '${p.nom}', ${p.prixVente})">
+                                🛒 Ajouter au panier
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = '<p style="text-align:center;color:#888;">Erreur de chargement</p>';
+            }
+        }
+
+        // ===== PROMOTIONS =====
+        async function loadPromotions() {
+            const container = document.getElementById('promoProducts');
+            try {
+                const response = await fetch(`${API_BASE}/produits?size=100`);
+                if (!response.ok) throw new Error('Erreur chargement');
+                const data = await response.json();
+                const products = data.content || [];
+                const promos = products.filter(p => p.quantiteStock < 5 && p.quantiteStock > 0);
+                
+                if (promos.length === 0) {
+                    container.innerHTML = `<p style="text-align:center;color:#888;" data-i18n="loading">🎯 Aucune promotion actuellement</p>`;
+                    return;
+                }
+                
+                container.innerHTML = promos.map(p => `
+                    <div class="product-card" style="position:relative;">
+                        <span class="badge-promo">🔥 Stock limité</span>
+                        <div class="image">🏍️</div>
+                        <div class="info">
+                            <h3>${p.nom}</h3>
+                            <div class="ref">${p.reference}</div>
+                            <div class="prix">${p.prixVente.toLocaleString('fr-FR')} DH</div>
+                            <div class="stock" style="color:#e94560;">⚠️ Stock: ${p.quantiteStock}</div>
+                            <button class="btn-add-cart" onclick="ajouterAuPanier(${p.id}, '${p.nom}', ${p.prixVente})">
+                                🛒 Ajouter au panier
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = '<p style="text-align:center;color:#888;">Erreur de chargement</p>';
+            }
+        }
+
+        // ===== AJOUTER AU PANIER =====
+        function ajouterAuPanier(id, nom, prix) {
+            if (!isLoggedIn) {
+                if (confirm('Vous devez être connecté pour ajouter au panier. Voulez-vous vous connecter ?')) {
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
+            
+            let panier = JSON.parse(localStorage.getItem('panier')) || [];
+            const existing = panier.find(p => p.id === id);
+            if (existing) {
+                existing.quantite++;
+            } else {
+                panier.push({ id, nom, prix, quantite: 1 });
+            }
+            localStorage.setItem('panier', JSON.stringify(panier));
+            updatePanierCount();
+            alert(`✅ ${nom} ajouté au panier !`);
+        }
+
+        // ===== MOTO 3D INTERACTION =====
+        function initMoto3D() {
+            const motoWrapper = document.getElementById('motoWrapper');
+            const motoShadow = document.getElementById('motoShadow');
+            const heroSection = document.querySelector('.hero-3d');
+            
+            if (!motoWrapper) return;
+            
+            let isMobile = window.innerWidth < 768;
+            let mouseX = 0, mouseY = 0;
+            let currentRotateX = 0, currentRotateY = 0;
+            let targetRotateX = 0, targetRotateY = 0;
+            let isAnimating = false;
+            let autoAnimationId = null;
+            
+            function checkMobile() {
+                isMobile = window.innerWidth < 768;
+                if (isMobile) {
+                    startAutoAnimation();
+                } else {
+                    stopAutoAnimation();
+                }
+            }
+            
+            function startAutoAnimation() {
+                if (autoAnimationId) return;
+                let time = 0;
+                function animate() {
+                    time += 0.01;
+                    const rotX = Math.sin(time * 0.5) * 5;
+                    const rotY = Math.sin(time * 0.7) * 8;
+                    motoWrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+                    if (motoShadow) {
+                        motoShadow.style.transform = `translateX(-50%) scale(${1 + Math.sin(time * 0.5) * 0.05})`;
+                        motoShadow.style.opacity = 0.7 + Math.sin(time * 0.5) * 0.15;
+                    }
+                    autoAnimationId = requestAnimationFrame(animate);
+                }
+                animate();
+            }
+            
+            function stopAutoAnimation() {
+                if (autoAnimationId) {
+                    cancelAnimationFrame(autoAnimationId);
+                    autoAnimationId = null;
+                }
+            }
+            
+            if (!isMobile) {
+                document.addEventListener('mousemove', function(e) {
+                    const rect = heroSection?.getBoundingClientRect();
+                    if (!rect) return;
+                    
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    mouseX = (e.clientX - centerX) / (rect.width / 2);
+                    mouseY = (e.clientY - centerY) / (rect.height / 2);
+                    targetRotateY = Math.max(-15, Math.min(15, mouseX * 12));
+                    targetRotateX = Math.max(-10, Math.min(10, -mouseY * 8));
+                    if (!isAnimating) {
+                        isAnimating = true;
+                        animateMoto();
+                    }
+                });
+                
+                heroSection?.addEventListener('mouseleave', function() {
+                    targetRotateX = 0;
+                    targetRotateY = 0;
+                });
+            }
+            
+            function animateMoto() {
+                const speed = 0.08;
+                currentRotateX += (targetRotateX - currentRotateX) * speed;
+                currentRotateY += (targetRotateY - currentRotateY) * speed;
+                motoWrapper.style.transform = `rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+                if (motoShadow) {
+                    const shadowX = currentRotateY * 0.5;
+                    motoShadow.style.transform = `translateX(calc(-50% + ${shadowX}px)) scale(${1 + Math.abs(currentRotateY) * 0.005})`;
+                    motoShadow.style.opacity = 0.7 - Math.abs(currentRotateY) * 0.008;
+                }
+                if (Math.abs(currentRotateX - targetRotateX) > 0.01 || Math.abs(currentRotateY - targetRotateY) > 0.01) {
+                    requestAnimationFrame(animateMoto);
+                } else {
+                    currentRotateX = targetRotateX;
+                    currentRotateY = targetRotateY;
+                    isAnimating = false;
+                }
+            }
+            
+            window.addEventListener('resize', checkMobile);
+            checkMobile();
+        }
+
+        // ===== INITIALISATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Les fonctions sont déjà appelées dans le script de langue
+        });
+    </script>
+</body>
+</html>
