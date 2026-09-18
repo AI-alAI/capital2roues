@@ -1,8 +1,8 @@
 // ============================================
-// CLIENTS - JavaScript
+// CLIENTS - JavaScript (FIXED)
 // ============================================
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = '/api';   // ✅ Chemin relatif
 let currentPage = 0;
 let pageSize = 10;
 let totalPages = 0;
@@ -14,7 +14,7 @@ let allVentes = [];
 
 // ===== AUTHENTIFICATION =====
 if (!localStorage.getItem('isLoggedIn')) {
-    window.location.href = '/client/login.html';
+    window.location.href = '/pages/login.html';   // ✅ Corrigé
 }
 
 document.getElementById('userEmail').textContent = localStorage.getItem('email') || 'Admin';
@@ -22,7 +22,7 @@ document.getElementById('userEmail').textContent = localStorage.getItem('email')
 function logout() {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('email');
-    window.location.href = '/client/login.html';
+    window.location.href = '/pages/login.html';   // ✅ Corrigé
 }
 
 // ===== API FETCH =====
@@ -34,28 +34,34 @@ async function apiFetch(url, options = {}) {
 
     if (response.status === 401) {
         localStorage.removeItem('isLoggedIn');
-        window.location.href = '/client/login.html';
+        window.location.href = '/pages/login.html';
         throw new Error('Session expirée');
     }
+
+    if (response.status === 204) return null;
 
     if (!response.ok) {
         const error = await response.text();
         throw new Error(error || 'Erreur serveur');
     }
 
-    if (response.status === 204) return null;
     return response.json();
 }
 
 // ===== FORMATAGE =====
 function formatPrice(price) {
-    return price.toLocaleString('fr-FR') + ' DH';
+    return Number(price || 0).toLocaleString('fr-FR') + ' DH';   // ✅ Safe
 }
 
 function formatDate(dateStr) {
     if (!dateStr) return '-';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('fr-FR');
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return '-';
+        return d.toLocaleDateString('fr-FR');
+    } catch (e) {
+        return '-';
+    }
 }
 
 function getCity(adresse) {
@@ -86,23 +92,23 @@ async function loadClients(page = 0) {
         alert.style.display = 'none';
 
         let url = `${API_BASE}/clients?page=${page}&size=${pageSize}&sort=${currentSort.field},${currentSort.direction}`;
-        
+
         const search = document.getElementById('searchInput').value.trim();
         if (search) url += `&search=${encodeURIComponent(search)}`;
-        
+
         const city = document.getElementById('cityFilter').value;
         if (city) url += `&ville=${encodeURIComponent(city)}`;
-        
+
         const status = document.getElementById('statusFilter').value;
         if (status) url += `&status=${status}`;
 
-        // Charger aussi les ventes pour les statistiques
+        // Charger clients + ventes en parallèle
         const [clientsData, ventesData] = await Promise.all([
             apiFetch(url),
-            apiFetch(`${API_BASE}/ventes?size=1000`)
+            apiFetch(`${API_BASE}/ventes?size=1000`).catch(() => ({ content: [] }))
         ]);
 
-        allVentes = ventesData.content || [];
+        allVentes = ventesData.content || ventesData || [];
 
         totalPages = clientsData.totalPages || 0;
         totalItems = clientsData.totalItems || 0;
@@ -119,7 +125,9 @@ async function loadClients(page = 0) {
         document.getElementById('clientCount').textContent = `(${totalItems} clients)`;
 
     } catch (error) {
+        console.error('❌ Erreur loadClients:', error);
         loading.style.display = 'none';
+        tableContent.style.display = 'block';
         showAlert('❌ ' + error.message, 'error');
     }
 }
@@ -135,14 +143,15 @@ function displayClients(clients) {
 
     tbody.innerHTML = clients.map(c => {
         const clientOrders = getClientOrders(c.id);
-        const total = clientOrders.reduce((sum, v) => sum + v.total, 0);
+        const total = clientOrders.reduce((sum, v) => sum + (v.total || 0), 0);
         const city = getCity(c.adresse);
+        const fullName = `${c.nom || ''} ${c.prenom || ''}`.trim();
 
         return `
             <tr>
                 <td><strong>#${c.id}</strong></td>
                 <td>
-                    <div class="client-name">${c.nom || ''} ${c.prenom || ''}</div>
+                    <div class="client-name">${fullName || '-'}</div>
                     <div class="client-email">${c.email || ''}</div>
                 </td>
                 <td>${c.telephone || '-'}</td>
@@ -157,13 +166,13 @@ function displayClients(clients) {
                 <td style="text-align:right; font-weight:600; color:#e94560;">${formatPrice(total)}</td>
                 <td class="actions-col">
                     <div class="action-buttons">
-                        <button class="btn-action view" onclick="viewClient(${c.id})" title="Voir détails">
+                        <button class="btn-action view" onclick="viewClient(${c.id})">
                             👁️ <span class="tooltip">Voir détails</span>
                         </button>
-                        <button class="btn-action edit" onclick="openEditModal(${c.id})" title="Modifier">
+                        <button class="btn-action edit" onclick="openEditModal(${c.id})">
                             ✏️ <span class="tooltip">Modifier</span>
                         </button>
-                        <button class="btn-action delete" onclick="openDeleteModal(${c.id}, '${c.nom} ${c.prenom}')" title="Supprimer">
+                        <button class="btn-action delete" onclick="openDeleteModal(${c.id}, '${fullName.replace(/'/g, "\\'")}')">
                             🗑️ <span class="tooltip">Supprimer</span>
                         </button>
                     </div>
@@ -184,28 +193,29 @@ function updateStats(clients) {
         const orders = getClientOrders(c.id);
         if (orders.length > 0) {
             purchased++;
-            totalRevenue += orders.reduce((sum, v) => sum + v.total, 0);
+            totalRevenue += orders.reduce((sum, v) => sum + (v.total || 0), 0);
         }
-        // Actif = client avec au moins 1 commande dans les 30 derniers jours
         const lastOrder = orders.sort((a, b) => new Date(b.dateVente) - new Date(a.dateVente))[0];
-        if (lastOrder) {
+        if (lastOrder && lastOrder.dateVente) {
             const daysSince = (Date.now() - new Date(lastOrder.dateVente)) / (1000 * 60 * 60 * 24);
             if (daysSince < 30) active++;
         }
     });
 
-    document.getElementById('totalClients').textContent = total;
-    document.getElementById('activeClients').textContent = active || 0;
-    document.getElementById('purchasedClients').textContent = purchased;
-    document.getElementById('clientRevenue').textContent = formatPrice(totalRevenue);
+    const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    el('totalClients', total);
+    el('activeClients', active);
+    el('purchasedClients', purchased);
+    el('clientRevenue', formatPrice(totalRevenue));
 }
 
 // ===== FILTRE VILLES =====
 function updateCityFilter(clients) {
     const cities = extractCities(clients);
     const select = document.getElementById('cityFilter');
+    if (!select) return;
     const currentValue = select.value;
-    
+
     select.innerHTML = '<option value="">Toutes</option>';
     cities.forEach(city => {
         select.innerHTML += `<option value="${city}">${city}</option>`;
@@ -240,6 +250,7 @@ function sortBy(field) {
 function updatePagination() {
     const info = document.getElementById('paginationInfo');
     const buttons = document.getElementById('paginationButtons');
+    if (!info || !buttons) return;
 
     const start = totalItems > 0 ? currentPage * pageSize + 1 : 0;
     const end = Math.min((currentPage + 1) * pageSize, totalItems);
@@ -278,7 +289,6 @@ function updatePagination() {
     }
 
     html += `<button onclick="goToPage(${current + 1})" ${current === totalPages - 1 ? 'disabled' : ''}>›</button>`;
-
     buttons.innerHTML = html;
 }
 
@@ -320,7 +330,7 @@ function openAddModal() {
 async function openEditModal(id) {
     try {
         const c = await apiFetch(`${API_BASE}/clients/${id}`);
-        
+
         document.getElementById('modalTitle').textContent = '✏️ Modifier le client';
         document.getElementById('editId').value = c.id;
         document.getElementById('nom').value = c.nom || '';
@@ -328,7 +338,7 @@ async function openEditModal(id) {
         document.getElementById('telephone').value = c.telephone || '';
         document.getElementById('email').value = c.email || '';
         document.getElementById('adresse').value = c.adresse || '';
-        
+
         document.getElementById('clientModal').classList.add('active');
     } catch (error) {
         showAlert('❌ Erreur: ' + error.message, 'error');
@@ -357,7 +367,7 @@ async function submitClient() {
         if (id) { url += `/${id}`; method = 'PUT'; }
 
         await apiFetch(url, { method, body: JSON.stringify(data) });
-        
+
         closeModal();
         showAlert(id ? '✅ Client modifié avec succès !' : '✅ Client ajouté avec succès !', 'success');
         loadClients(currentPage);
@@ -371,13 +381,13 @@ async function viewClient(id) {
     try {
         const c = await apiFetch(`${API_BASE}/clients/${id}`);
         detailId = id;
-        
+
         const orders = getClientOrders(id);
-        const total = orders.reduce((sum, v) => sum + v.total, 0);
-        const lastOrder = orders.sort((a, b) => new Date(b.dateVente) - new Date(a.dateVente))[0];
-        
-        document.getElementById('detailTitle').textContent = `👤 ${c.nom} ${c.prenom}`;
-        
+        const total = orders.reduce((sum, v) => sum + (v.total || 0), 0);
+        const lastOrder = orders.slice().sort((a, b) => new Date(b.dateVente) - new Date(a.dateVente))[0];
+
+        document.getElementById('detailTitle').textContent = `👤 ${c.nom || ''} ${c.prenom || ''}`;
+
         let ordersHtml = '';
         if (orders.length === 0) {
             ordersHtml = '<p style="color:#888; text-align:center; padding:20px;">Aucune commande</p>';
@@ -386,12 +396,12 @@ async function viewClient(id) {
                 <table>
                     <thead><tr><th>#</th><th>Total</th><th>Date</th><th>Statut</th></tr></thead>
                     <tbody>
-                        ${orders.sort((a,b) => new Date(b.dateVente) - new Date(a.dateVente)).map(v => `
+                        ${orders.slice().sort((a,b) => new Date(b.dateVente) - new Date(a.dateVente)).map(v => `
                             <tr>
                                 <td><strong>#${v.id}</strong></td>
                                 <td style="font-weight:600; color:#e94560;">${formatPrice(v.total)}</td>
                                 <td>${formatDate(v.dateVente)}</td>
-                                <td><span class="status-badge ${v.statut.toLowerCase()}">${v.statut}</span></td>
+                                <td><span class="status-badge ${(v.statut || '').toLowerCase()}">${v.statut || '-'}</span></td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -486,10 +496,13 @@ function showAlert(message, type) {
 }
 
 // ===== INITIALISATION =====
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🚀 Initialisation clients...');
     loadClients(0);
 
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    document.getElementById('searchInput').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') applyFilters();
     });
 });
+
+console.log('✅ clients.js chargé');

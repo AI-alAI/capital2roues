@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Capital 2 Roues</title>
     <link rel="stylesheet" href="css/client-style.css">
-    
+
     <script>
         // ============================================
         // GESTION DE LA LANGUE (FR/EN/AR)
@@ -23,8 +23,6 @@
                 'login.error': '❌ Email ou mot de passe incorrect',
                 'login.success': '✅ Connexion réussie ! Redirection en cours...',
                 'login.loading': '⏳ Connexion...',
-                'login.debug.loaded': '🚀 Page chargée',
-                'login.debug.hint1': '💡 Utilisez: client@test.com / 123456',
                 'login.placeholder.email': 'client@email.com',
                 'login.placeholder.password': 'Votre mot de passe'
             },
@@ -39,8 +37,6 @@
                 'login.error': '❌ Incorrect email or password',
                 'login.success': '✅ Login successful! Redirecting...',
                 'login.loading': '⏳ Logging in...',
-                'login.debug.loaded': '🚀 Page loaded',
-                'login.debug.hint1': '💡 Use: client@test.com / 123456',
                 'login.placeholder.email': 'client@email.com',
                 'login.placeholder.password': 'Your password'
             },
@@ -55,8 +51,6 @@
                 'login.error': '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة',
                 'login.success': '✅ تم تسجيل الدخول بنجاح! جاري التحويل...',
                 'login.loading': '⏳ جاري تسجيل الدخول...',
-                'login.debug.loaded': '🚀 تم تحميل الصفحة',
-                'login.debug.hint1': '💡 استخدم: client@test.com / 123456',
                 'login.placeholder.email': 'client@email.com',
                 'login.placeholder.password': 'كلمة المرور الخاصة بك'
             }
@@ -82,7 +76,7 @@
                     el.textContent = translation;
                 }
             });
-            
+
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
             });
@@ -93,10 +87,10 @@
             currentLang = lang;
             localStorage.setItem(LANG_KEY, lang);
             applyTranslations();
-            
+
             const selector = document.getElementById('languageSelector');
             if (selector) selector.value = lang;
-            
+
             document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
             document.body.style.textAlign = lang === 'ar' ? 'right' : 'left';
         }
@@ -114,14 +108,12 @@
                 document.body.style.direction = 'rtl';
                 document.body.style.textAlign = 'right';
             }
-            logDebug(t('login.debug.loaded'), 'info');
-            logDebug(t('login.debug.hint1'), 'info');
         });
 
         window.switchLanguage = switchLanguage;
         window.t = t;
     </script>
-    
+
     <style>
         .input-group { position: relative; }
         .toggle-password {
@@ -130,18 +122,9 @@
             font-size: 16px; color: #888;
         }
         .toggle-password:hover { color: #333; }
-        .debug-info {
-            background: #f8f9fa; padding: 10px; border-radius: 5px;
-            font-size: 12px; color: #666; margin-top: 10px;
-            display: none; max-height: 200px; overflow: auto;
-            border: 1px solid #eee; font-family: 'Courier New', monospace;
-        }
-        .debug-info .success { color: #4CAF50; }
-        .debug-info .error { color: #e94560; }
-        .debug-info .info { color: #2196F3; }
-        
+
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-        
+
         .alert-client {
             padding: 12px 15px; border-radius: 8px; margin-bottom: 15px;
             display: none; font-size: 14px;
@@ -154,7 +137,7 @@
             background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
             display: block;
         }
-        
+
         .language-selector { text-align: right; margin-bottom: 15px; }
         .language-select {
             padding: 6px 12px; border-radius: 5px;
@@ -212,12 +195,12 @@
                     <option value="ar">🇸🇦 العربية</option>
                 </select>
             </div>
-            
+
             <h1 data-i18n="login.title">🏍️ Capital 2 Roues</h1>
             <p class="subtitle" data-i18n="login.subtitle">Connectez-vous à votre espace client</p>
-            
+
             <div id="alert" class="alert-client"></div>
-            
+
             <form id="loginForm">
                 <div class="form-group">
                     <label data-i18n="login.email">Email</label>
@@ -232,19 +215,18 @@
                 </div>
                 <button type="submit" class="btn-primary" id="loginBtn" data-i18n="login.submit">Se connecter</button>
             </form>
-            
-            <div id="debugInfo" class="debug-info"></div>
-            
+
             <div class="auth-links">
-                <a href="register.html" data-i18n="login.registerLink">Créer un compte</a> | 
+                <a href="register.html" data-i18n="login.registerLink">Créer un compte</a> |
                 <a href="index.html" data-i18n="login.backHome">Retour à l'accueil</a>
             </div>
         </div>
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:8080/api';
-        
+        // ===== API BASE — Chemin relatif (fonctionne partout) =====
+        const API_BASE = '/api';
+
         function togglePassword() {
             const input = document.getElementById('motDePasse');
             const btn = document.querySelector('.toggle-password');
@@ -257,87 +239,74 @@
             }
         }
 
-        function logDebug(message, type = 'info') {
-            const debugDiv = document.getElementById('debugInfo');
-            debugDiv.style.display = 'block';
-            const color = type === 'success' ? '#4CAF50' : type === 'error' ? '#e94560' : '#2196F3';
-            debugDiv.innerHTML += `<span style="color:${color}">${new Date().toLocaleTimeString()}</span> - ${message}<br>`;
-            debugDiv.scrollTop = debugDiv.scrollHeight;
-            console.log(message);
-        }
-
-        // ===== LOGIN AVEC API =====
+        // ===== LOGIN =====
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('email').value.trim();
             const motDePasse = document.getElementById('motDePasse').value;
             const alert = document.getElementById('alert');
-            const debugDiv = document.getElementById('debugInfo');
             const loginBtn = document.getElementById('loginBtn');
-            
+
             alert.style.display = 'none';
             alert.className = 'alert-client';
-            debugDiv.innerHTML = '';
-            debugDiv.style.display = 'block';
-            
-            logDebug('🔍 Tentative de connexion...', 'info');
-            logDebug('📧 Email: "' + email + '"', 'info');
-            
+
             loginBtn.disabled = true;
             loginBtn.textContent = t('login.loading');
-            
+
             try {
-                // Appel à l'API /api/login
-                logDebug('📡 Appel API: /api/login', 'info');
                 const response = await fetch(`${API_BASE}/login`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        motDePasse: motDePasse
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, motDePasse })
                 });
-                
-                // Lire la réponse
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Email ou mot de passe incorrect');
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = null;
                 }
-                
-                if (data.success && data.user) {
-                    logDebug('✅ Connexion réussie !', 'success');
-                    logDebug('👤 Utilisateur: ' + data.user.email + ' (' + data.user.role + ')', 'success');
-                    
-                    // Stocker les informations
+
+                if (!response.ok) {
+                    throw new Error((data && data.error) || 'Email ou mot de passe incorrect');
+                }
+
+                if (data && data.success && data.user) {
+                    // Stocker les informations de session
                     localStorage.setItem('clientId', data.user.id);
                     localStorage.setItem('clientEmail', data.user.email);
                     localStorage.setItem('clientNom', data.user.nom);
                     localStorage.setItem('clientPrenom', data.user.prenom);
                     localStorage.setItem('clientRole', data.user.role);
                     localStorage.setItem('clientLoggedIn', 'true');
-                    
+
+                    // Aussi compatibilité avec les pages admin
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('email', data.user.email);
+
                     alert.className = 'alert-client success';
                     alert.textContent = t('login.success');
                     alert.style.display = 'block';
-                    
+
+                    // Redirection selon le rôle
+                    const isAdmin = (data.user.role || '').toUpperCase() === 'ADMIN';
+                    const redirectUrl = isAdmin ? '/pages/dashboard.html' : 'index.html';
+
                     setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1500);
+                        window.location.href = redirectUrl;
+                    }, 1200);
                 } else {
                     throw new Error('Erreur inconnue lors de la connexion');
                 }
-                
+
             } catch (error) {
-                logDebug('❌ Erreur: ' + error.message, 'error');
                 alert.className = 'alert-client error';
                 alert.textContent = '❌ ' + error.message;
                 alert.style.display = 'block';
+                console.error('Login error:', error);
             }
-            
+
             loginBtn.disabled = false;
             loginBtn.textContent = t('login.submit');
         });

@@ -1,8 +1,8 @@
 // ============================================
-// PRODUITS - JavaScript (Version Finale)
+// PRODUITS - JavaScript (Version Finale - FIXED)
 // ============================================
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = '/api';   // ✅ Chemin relatif — marche partout
 let currentPage = 0;
 let pageSize = 10;
 let totalPages = 0;
@@ -14,7 +14,7 @@ let currentSort = { field: 'id', direction: 'desc' };
 
 // ===== AUTHENTIFICATION =====
 if (!localStorage.getItem('isLoggedIn')) {
-    window.location.href = '/client/login.html';
+    window.location.href = '/pages/login.html';   // ✅ Corrigé
 }
 
 document.getElementById('userEmail').textContent = localStorage.getItem('email') || 'Admin';
@@ -22,46 +22,38 @@ document.getElementById('userEmail').textContent = localStorage.getItem('email')
 function logout() {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('email');
-    window.location.href = '/client/login.html';
+    window.location.href = '/pages/login.html';   // ✅ Corrigé
 }
 
 // ===== API FETCH =====
 async function apiFetch(url, options = {}) {
-    try {
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...(options.headers || {})
-            }
-        });
-
-        if (response.status === 401) {
-            localStorage.removeItem('isLoggedIn');
-            window.location.href = '/client/login.html';
-            throw new Error('Session expirée');
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
         }
+    });
 
-        // Pour DELETE, la réponse est 204 No Content
-        if (response.status === 204) {
-            return null;
-        }
-
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(error || 'Erreur serveur');
-        }
-
-        return response.json();
-    } catch (error) {
-        console.error('❌ API Error:', error);
-        throw error;
+    if (response.status === 401) {
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = '/pages/login.html';
+        throw new Error('Session expirée');
     }
+
+    if (response.status === 204) return null;
+
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Erreur serveur');
+    }
+
+    return response.json();
 }
 
 // ===== FORMATAGE =====
 function formatPrice(price) {
-    return price.toLocaleString('fr-FR') + ' DH';
+    return Number(price || 0).toLocaleString('fr-FR') + ' DH';
 }
 
 function getStockStatus(quantite) {
@@ -81,7 +73,8 @@ async function loadCategories() {
         select.innerHTML = `<option value="">Toutes</option>${options}`;
         modalSelect.innerHTML = `<option value="">Sélectionner</option>${options}`;
     } catch (error) {
-        console.error('Erreur chargement catégories:', error);
+        console.warn('⚠️ Catégories non chargées:', error.message);
+        // Ne bloque PAS le reste si les catégories échouent
     }
 }
 
@@ -97,14 +90,13 @@ async function loadProducts(page = 0) {
         alert.style.display = 'none';
 
         let url = `${API_BASE}/produits?page=${page}&size=${pageSize}&sort=${currentSort.field},${currentSort.direction}`;
-        console.log('📡 URL:', url);
-        
+
         const search = document.getElementById('searchInput').value.trim();
         if (search) url += `&keyword=${encodeURIComponent(search)}`;
-        
+
         const category = document.getElementById('categoryFilter').value;
         if (category) url += `&categorieId=${category}`;
-        
+
         const stockFilter = document.getElementById('stockFilter').value;
         if (stockFilter === 'normal') url += `&stockMin=6`;
         else if (stockFilter === 'warning') url += `&stockMin=1&stockMax=5`;
@@ -112,12 +104,13 @@ async function loadProducts(page = 0) {
 
         const prixMin = document.getElementById('prixMin').value;
         if (prixMin) url += `&prixMin=${prixMin}`;
-        
+
         const prixMax = document.getElementById('prixMax').value;
         if (prixMax) url += `&prixMax=${prixMax}`;
 
+        console.log('📡 Fetching:', url);
         const data = await apiFetch(url);
-        console.log('📦 Produits reçus:', data);
+        console.log('📦 Data reçue:', data);
 
         totalPages = data.totalPages || 0;
         totalItems = data.totalItems || 0;
@@ -135,6 +128,7 @@ async function loadProducts(page = 0) {
     } catch (error) {
         console.error('❌ Erreur loadProducts:', error);
         loading.style.display = 'none';
+        tableContent.style.display = 'block';
         showAlert('❌ ' + error.message, 'error');
     }
 }
@@ -148,9 +142,9 @@ function displayProducts(products) {
         return;
     }
 
-    tbody.innerHTML = products.map((p, index) => {
+    tbody.innerHTML = products.map(p => {
         const status = getStockStatus(p.quantiteStock);
-        const margin = p.prixVente - p.prixAchat;
+        const margin = (p.prixVente || 0) - (p.prixAchat || 0);
         const marginClass = margin > 0 ? 'margin-positive' : 'margin-negative';
 
         return `
@@ -164,7 +158,7 @@ function displayProducts(products) {
                 <td>${p.categorieNom || '-'}</td>
                 <td style="text-align:right;">${formatPrice(p.prixAchat || 0)}</td>
                 <td style="text-align:right; font-weight:600;">${formatPrice(p.prixVente || 0)}</td>
-                <td style="text-align:right;" class="${marginClass}">${formatPrice(margin || 0)}</td>
+                <td style="text-align:right;" class="${marginClass}">${formatPrice(margin)}</td>
                 <td style="text-align:center;">
                     <div class="stock-status">
                         <span class="stock-dot ${status.dot}"></span>
@@ -176,16 +170,16 @@ function displayProducts(products) {
                 </td>
                 <td class="actions-col">
                     <div class="action-buttons">
-                        <button class="btn-action view" onclick="viewProduct(${p.id})" title="Voir détails">
+                        <button class="btn-action view" onclick="viewProduct(${p.id})">
                             👁️ <span class="tooltip">Voir détails</span>
                         </button>
-                        <button class="btn-action edit" onclick="openEditModal(${p.id})" title="Modifier">
+                        <button class="btn-action edit" onclick="openEditModal(${p.id})">
                             ✏️ <span class="tooltip">Modifier</span>
                         </button>
-                        <button class="btn-action stock-mvt" onclick="viewStockMovements(${p.id})" title="Mouvements">
+                        <button class="btn-action stock-mvt" onclick="viewStockMovements(${p.id})">
                             📦 <span class="tooltip">Mouvements</span>
                         </button>
-                        <button class="btn-action delete" onclick="openDeleteModal(${p.id}, '${p.nom}')" title="Supprimer">
+                        <button class="btn-action delete" onclick="openDeleteModal(${p.id}, '${(p.nom || '').replace(/'/g, "\\'")}')">
                             🗑️ <span class="tooltip">Supprimer</span>
                         </button>
                     </div>
@@ -318,7 +312,7 @@ function openAddModal() {
 async function openEditModal(id) {
     try {
         const p = await apiFetch(`${API_BASE}/produits/${id}`);
-        
+
         document.getElementById('modalTitle').textContent = '✏️ Modifier le produit';
         document.getElementById('editId').value = p.id;
         document.getElementById('nom').value = p.nom || '';
@@ -332,7 +326,7 @@ async function openEditModal(id) {
         document.getElementById('quantiteStock').value = p.quantiteStock || 0;
         document.getElementById('garantie').value = p.garantie || '';
         document.getElementById('categorieId').value = p.categorieId || '';
-        
+
         document.getElementById('productModal').classList.add('active');
     } catch (error) {
         showAlert('❌ Erreur: ' + error.message, 'error');
@@ -367,7 +361,7 @@ async function submitProduct() {
         if (id) { url += `/${id}`; method = 'PUT'; }
 
         await apiFetch(url, { method, body: JSON.stringify(data) });
-        
+
         closeModal();
         showAlert(id ? '✅ Produit modifié avec succès !' : '✅ Produit ajouté avec succès !', 'success');
         loadProducts(currentPage);
@@ -381,28 +375,23 @@ async function viewProduct(id) {
     try {
         const p = await apiFetch(`${API_BASE}/produits/${id}`);
         detailId = id;
-        
+
         const status = getStockStatus(p.quantiteStock);
-        const margin = p.prixVente - p.prixAchat;
-        
+        const margin = (p.prixVente || 0) - (p.prixAchat || 0);
+
         document.getElementById('detailTitle').textContent = `🏍️ ${p.nom || 'Produit'}`;
         document.getElementById('detailContent').innerHTML = `
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div class="detail-item"><div class="label">Référence</div><div class="value">${p.reference || '-'}</div></div>
-                <div class="detail-item"><div class="label">Catégorie</div><div class="value">${p.categorieNom || '-'}</div></div>
-                <div class="detail-item"><div class="label">Année</div><div class="value">${p.annee || '-'}</div></div>
-                <div class="detail-item"><div class="label">Couleur</div><div class="value">${p.couleur || '-'}</div></div>
-                <div class="detail-item"><div class="label">Cylindrée</div><div class="value">${p.cylindree || '-'} cc</div></div>
-                <div class="detail-item"><div class="label">Garantie</div><div class="value">${p.garantie || '-'}</div></div>
-                <div class="detail-item"><div class="label">VIN (Châssis)</div><div class="value" style="font-size:13px;">${p.vin || '-'}</div></div>
-                <div class="detail-item"><div class="label">Stock</div><div class="value stock-${status.class}">${p.quantiteStock || 0} unités</div></div>
-                <div class="detail-item"><div class="label">Prix d'achat</div><div class="value">${formatPrice(p.prixAchat)}</div></div>
-                <div class="detail-item"><div class="label">Prix de vente</div><div class="value" style="font-weight:700; color:#e94560;">${formatPrice(p.prixVente)}</div></div>
-                <div class="detail-item" style="grid-column:1/-1;"><div class="label">Marge</div><div class="value" style="color:${margin > 0 ? '#4CAF50' : '#e94560'}; font-size:18px;">${formatPrice(margin)}</div></div>
-                <div class="detail-item" style="grid-column:1/-1; background:#f8f9fa; text-align:center;">
-                    <span class="stock-dot ${status.dot}" style="display:inline-block; width:12px; height:12px; border-radius:50%; vertical-align:middle;"></span>
-                    <span class="stock-text ${status.class}" style="font-size:16px;">Statut: ${status.label}</span>
-                </div>
+                <div><strong>Référence:</strong> ${p.reference || '-'}</div>
+                <div><strong>Catégorie:</strong> ${p.categorieNom || '-'}</div>
+                <div><strong>Année:</strong> ${p.annee || '-'}</div>
+                <div><strong>Couleur:</strong> ${p.couleur || '-'}</div>
+                <div><strong>Garantie:</strong> ${p.garantie || '-'}</div>
+                <div><strong>VIN:</strong> ${p.vin || '-'}</div>
+                <div><strong>Stock:</strong> <span class="stock-text ${status.class}">${p.quantiteStock} unités</span></div>
+                <div><strong>Prix achat:</strong> ${formatPrice(p.prixAchat)}</div>
+                <div><strong>Prix vente:</strong> ${formatPrice(p.prixVente)}</div>
+                <div><strong>Marge:</strong> ${formatPrice(margin)}</div>
             </div>
         `;
         document.getElementById('detailModal').classList.add('active');
@@ -418,84 +407,40 @@ function openEditFromDetail() {
     }
 }
 
-// ============================================
-// ===== GESTION DE LA SUPPRESSION =====
-// ============================================
-
+// ===== SUPPRESSION =====
 function openDeleteModal(id, nom) {
     deleteId = id;
     document.getElementById('deleteProductName').textContent = nom || 'ce produit';
     document.getElementById('deleteModal').classList.add('active');
-    console.log('🗑️ Suppression du produit ID:', id);
 }
 
 function closeDeleteModal() {
     document.getElementById('deleteModal').classList.remove('active');
-}
-
-function resetDeleteState() {
     deleteId = null;
 }
 
 async function confirmDelete() {
-    if (!deleteId) {
-        showAlert('❌ Aucun produit à supprimer', 'error');
-        return;
-    }
-    
+    if (!deleteId) return;
+
     try {
-        console.log('🗑️ Confirmation suppression ID:', deleteId);
-        
-        const response = await fetch(`${API_BASE}/produits/${deleteId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.status === 401) {
-            localStorage.removeItem('isLoggedIn');
-            window.location.href = '/client/login.html';
-            return;
-        }
-        
-        if (response.status === 204) {
-            const deletedId = deleteId;
-            closeDeleteModal();
-            resetDeleteState();
-            showAlert(`✅ Produit #${deletedId} supprimé avec succès !`, 'success');
-            console.log('✅ Produit supprimé:', deletedId);
-            loadProducts(currentPage);
-            return;
-        }
-        
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(error || 'Erreur lors de la suppression');
-        }
-        
-        const data = await response.json();
-        const deletedId = deleteId;
+        await apiFetch(`${API_BASE}/produits/${deleteId}`, { method: 'DELETE' });
+        const id = deleteId;
         closeDeleteModal();
-        resetDeleteState();
-        showAlert(`✅ Produit #${deletedId} supprimé avec succès !`, 'success');
+        showAlert(`✅ Produit #${id} supprimé avec succès !`, 'success');
         loadProducts(currentPage);
-        
     } catch (error) {
-        console.error('❌ Erreur suppression:', error);
         showAlert('❌ Erreur: ' + error.message, 'error');
         closeDeleteModal();
-        resetDeleteState();
     }
 }
 
 // ===== FERMETURE MODALS =====
-function closeModal() { 
-    document.getElementById('productModal').classList.remove('active'); 
+function closeModal() {
+    document.getElementById('productModal').classList.remove('active');
 }
 
-function closeDetailModal() { 
-    document.getElementById('detailModal').classList.remove('active'); 
+function closeDetailModal() {
+    document.getElementById('detailModal').classList.remove('active');
 }
 
 // ===== ALERTES =====
@@ -504,27 +449,12 @@ function showAlert(message, type) {
     alert.textContent = message;
     alert.className = `alert ${type}`;
     alert.style.display = 'block';
-    setTimeout(() => { 
-        alert.style.display = 'none'; 
-    }, 5000);
+    setTimeout(() => { alert.style.display = 'none'; }, 5000);
 }
 
 // ===== EXPORT EXCEL =====
-async function exportExcel() {
-    try {
-        showAlert('⏳ Génération du fichier Excel...', 'success');
-        
-        // Télécharger le fichier
-        window.open(`${API_BASE}/produits/export/excel`, '_blank');
-        
-        setTimeout(() => {
-            showAlert('✅ Fichier Excel téléchargé avec succès !', 'success');
-        }, 3000);
-        
-    } catch (error) {
-        console.error('❌ Erreur export Excel:', error);
-        showAlert('❌ Erreur lors de l\'export Excel: ' + error.message, 'error');
-    }
+function exportExcel() {
+    window.open(`${API_BASE}/produits/export/excel`, '_blank');
 }
 
 // ===== STOCK MOVEMENTS =====
@@ -533,14 +463,14 @@ function viewStockMovements(id) {
 }
 
 // ===== INITIALISATION =====
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initialisation de la page produits...');
-    loadCategories();
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🚀 Initialisation produits...');
+    loadCategories();      // Ne bloque pas si échoue
     loadProducts(0);
 
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    document.getElementById('searchInput').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') applyFilters();
     });
 });
 
-console.log('✅ produits.js chargé avec succès');
+console.log('✅ produits.js chargé');

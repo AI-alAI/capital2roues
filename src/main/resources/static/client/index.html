@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capital 2 Roues - Motos & Deux-Roues</title>
     <link rel="stylesheet" href="css/client-style.css">
-    
+
     <script>
         // ============================================
         // GESTION DE LA LANGUE (FR/EN/AR)
@@ -124,7 +124,7 @@
                     el.textContent = translation;
                 }
             });
-            
+
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
             });
@@ -135,13 +135,13 @@
             currentLang = lang;
             localStorage.setItem(LANG_KEY, lang);
             applyTranslations();
-            
+
             const selector = document.getElementById('languageSelector');
             if (selector) selector.value = lang;
-            
+
             document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
             document.body.style.textAlign = lang === 'ar' ? 'right' : 'left';
-            
+
             if (typeof loadStats === 'function') loadStats();
             if (typeof loadFeaturedProducts === 'function') loadFeaturedProducts();
             if (typeof loadPromotions === 'function') loadPromotions();
@@ -160,89 +160,54 @@
                 document.body.style.direction = 'rtl';
                 document.body.style.textAlign = 'right';
             }
-            if (typeof loadStats === 'function') loadStats();
-            if (typeof loadFeaturedProducts === 'function') loadFeaturedProducts();
-            if (typeof loadPromotions === 'function') loadPromotions();
-            if (typeof updateNavbar === 'function') updateNavbar();
-            if (typeof updatePanierCount === 'function') updatePanierCount();
-            if (typeof initMoto3D === 'function') initMoto3D();
         });
 
         window.switchLanguage = switchLanguage;
         window.t = t;
     </script>
-    
+
     <style>
-        .language-selector {
-            margin-left: 15px;
-        }
+        .language-selector { margin-left: 15px; }
         .language-select {
-            padding: 6px 12px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            background: #fff;
-            cursor: pointer;
-            font-size: 14px;
+            padding: 6px 12px; border-radius: 5px;
+            border: 1px solid #ddd; background: #fff;
+            cursor: pointer; font-size: 14px;
         }
-        
+
         /* ===== HERO 3D ===== */
         .hero-3d {
-            position: relative;
-            overflow: hidden;
-            min-height: 450px;
-            display: flex;
-            align-items: center;
+            position: relative; overflow: hidden;
+            min-height: 450px; display: flex; align-items: center;
         }
         .hero-3d-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0 20px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 40px; align-items: center;
+            max-width: 1200px; margin: 0 auto;
+            width: 100%; padding: 0 20px;
         }
-        .hero-3d-content {
-            text-align: left;
-        }
-        .hero-3d-content h1 {
-            font-size: 44px;
-            line-height: 1.2;
-        }
-        .hero-3d-content p {
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
-        
-        /* ===== MOTO 3D ===== */
+        .hero-3d-content { text-align: left; }
+        .hero-3d-content h1 { font-size: 44px; line-height: 1.2; }
+        .hero-3d-content p { font-size: 18px; margin-bottom: 30px; }
+
         .hero-3d-moto {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             perspective: 800px;
         }
         .moto-wrapper {
-            position: relative;
-            width: 280px;
-            height: 280px;
+            position: relative; width: 280px; height: 280px;
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
         }
         .moto-shadow {
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
+            position: absolute; bottom: -10px; left: 50%;
             transform: translateX(-50%);
-            width: 180px;
-            height: 25px;
+            width: 180px; height: 25px;
             background: radial-gradient(ellipse, rgba(0,0,0,0.3) 0%, transparent 70%);
             border-radius: 50%;
             transition: all 0.2s ease-out;
         }
         .moto-text {
-            font-size: 120px;
-            text-align: center;
+            font-size: 120px; text-align: center;
             line-height: 280px;
             filter: drop-shadow(0 10px 30px rgba(233, 69, 96, 0.3));
             animation: floatMoto 3s ease-in-out infinite;
@@ -252,18 +217,10 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
-        .moto-body {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-        }
+        .moto-body { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
         .moto-wheel {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(255,255,255,0.15);
-            border-radius: 50%;
+            position: absolute; width: 30px; height: 30px;
+            border: 3px solid rgba(255,255,255,0.15); border-radius: 50%;
             background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
             animation: spinWheel 4s linear infinite;
         }
@@ -274,66 +231,45 @@
             100% { transform: rotate(360deg); }
         }
         .moto-headlight {
-            position: absolute;
-            top: 25%;
-            right: 5%;
-            width: 10%;
-            height: 6%;
+            position: absolute; top: 25%; right: 5%;
+            width: 10%; height: 6%;
             background: radial-gradient(circle, rgba(255,215,0,0.3), transparent);
-            border-radius: 50%;
-            animation: headlightGlow 2s ease-in-out infinite;
+            border-radius: 50%; animation: headlightGlow 2s ease-in-out infinite;
         }
         @keyframes headlightGlow {
             0%, 100% { opacity: 0.5; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.3); }
         }
         .moto-exhaust {
-            position: absolute;
-            bottom: 20%;
-            left: 5%;
-            width: 6%;
-            height: 12%;
-            background: rgba(255,255,255,0.05);
-            border-radius: 3px;
+            position: absolute; bottom: 20%; left: 5%;
+            width: 6%; height: 12%;
+            background: rgba(255,255,255,0.05); border-radius: 3px;
         }
         .moto-seat {
-            position: absolute;
-            top: 30%;
-            left: 20%;
-            width: 25%;
-            height: 6%;
+            position: absolute; top: 30%; left: 20%;
+            width: 25%; height: 6%;
             background: rgba(255,255,255,0.08);
             border-radius: 15px 15px 5px 5px;
         }
         .moto-handlebar {
-            position: absolute;
-            top: 22%;
-            right: 20%;
-            width: 15%;
-            height: 3px;
+            position: absolute; top: 22%; right: 20%;
+            width: 15%; height: 3px;
             background: rgba(255,255,255,0.12);
-            border-radius: 2px;
-            transform: rotate(15deg);
+            border-radius: 2px; transform: rotate(15deg);
         }
         .moto-front {
-            position: absolute;
-            top: 28%;
-            right: 8%;
-            width: 35%;
-            height: 8%;
+            position: absolute; top: 28%; right: 8%;
+            width: 35%; height: 8%;
             background: linear-gradient(90deg, transparent, rgba(233, 69, 96, 0.15));
             border-radius: 50%;
         }
         .moto-back {
-            position: absolute;
-            bottom: 15%;
-            left: 5%;
-            width: 25%;
-            height: 6%;
+            position: absolute; bottom: 15%; left: 5%;
+            width: 25%; height: 6%;
             background: linear-gradient(90deg, rgba(233, 69, 96, 0.15), transparent);
             border-radius: 50%;
         }
-        
+
         @media (max-width: 992px) {
             .hero-3d-container { grid-template-columns: 1fr; text-align: center; }
             .hero-3d-content { text-align: center; }
@@ -357,15 +293,15 @@
             <h1>🏍️ Capital 2 Roues</h1>
             <small>Votre passion, notre métier</small>
         </div>
-      <ul class="nav-links">
-    <li><a href="index.html">🏠 Accueil</a></li>
-    <li><a href="catalogue.html">📦 Catalogue</a></li>
-    <li><a href="panier.html">🛒 Panier <span class="badge" id="panierCount">0</span></a></li>
-    <li><a href="commandes.html">📋 Commandes</a></li>
-    <li><a href="profil.html">👤 Profil</a></li>
-    <li><a href="reclamations.html">📋 Réclamations</a></li>  <!-- AJOUTER CETTE LIGNE -->
-</ul>
-        
+        <ul class="nav-links">
+            <li><a href="index.html">🏠 Accueil</a></li>
+            <li><a href="catalogue.html">📦 Catalogue</a></li>
+            <li><a href="panier.html">🛒 Panier <span class="badge" id="panierCount">0</span></a></li>
+            <li><a href="commandes.html">📋 Commandes</a></li>
+            <li><a href="profil.html">👤 Profil</a></li>
+            <li><a href="reclamations.html">📋 Réclamations</a></li>
+        </ul>
+
         <div class="language-selector">
             <select id="languageSelector" class="language-select">
                 <option value="fr">🇫🇷 Français</option>
@@ -373,14 +309,13 @@
                 <option value="ar">🇸🇦 العربية</option>
             </select>
         </div>
-        
+
         <div class="user-info-nav" id="userInfo"></div>
     </nav>
 
     <!-- ===== HERO AVEC MOTO 3D ===== -->
     <section class="hero-client hero-3d">
         <div class="hero-3d-container">
-            <!-- Texte -->
             <div class="hero-3d-content">
                 <h1 data-i18n="hero.title">🏍️ Votre passion roule avec nous</h1>
                 <p data-i18n="hero.subtitle">Découvrez notre gamme de motos et deux-roues de qualité</p>
@@ -389,8 +324,7 @@
                     <a href="#promotions" class="btn-secondary" data-i18n="hero.btnPromotions">🔥 Promotions</a>
                 </div>
             </div>
-            
-            <!-- Moto 3D -->
+
             <div class="hero-3d-moto" id="moto3d">
                 <div class="moto-wrapper" id="motoWrapper">
                     <div class="moto-shadow" id="motoShadow"></div>
@@ -455,8 +389,8 @@
             <div>
                 <h3>🏍️ Capital 2 Roues</h3>
                 <p data-i18n="footer.about">Votre spécialiste motos et deux-roues depuis 2020</p>
-                <p data-i18n="footer.address">📍 Casablanca, Maroc</p>
-                <p data-i18n="footer.phone">📞 +212 5XX-XXXXXX</p>
+                <p data-i18n="footer.address">📍 FES, Maroc</p>
+                <p data-i18n="footer.phone">📞 +212 53909355</p>
             </div>
             <div>
                 <h4 data-i18n="footer.quickLinks">Liens rapides</h4>
@@ -478,12 +412,15 @@
     </footer>
 
     <script>
-        const API_BASE = 'http://localhost:8080/api';
+        // ✅ CHEMIN RELATIF — Fonctionne partout
+        const API_BASE = '/api';
         let isLoggedIn = localStorage.getItem('clientLoggedIn') === 'true';
 
         // ===== AUTHENTIFICATION =====
         function updateNavbar() {
             const userInfo = document.getElementById('userInfo');
+            if (!userInfo) return;
+
             if (isLoggedIn) {
                 const nom = localStorage.getItem('clientPrenom') || 'Client';
                 const initial = nom.charAt(0).toUpperCase();
@@ -508,15 +445,22 @@
             localStorage.removeItem('clientPrenom');
             localStorage.removeItem('clientRole');
             localStorage.removeItem('clientLoggedIn');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('email');
             window.location.href = 'index.html';
         }
 
         // ===== PANIER =====
         function updatePanierCount() {
             const panier = JSON.parse(localStorage.getItem('panier')) || [];
-            const total = panier.reduce((sum, p) => sum + p.quantite, 0);
+            const total = panier.reduce((sum, p) => sum + (p.quantite || 0), 0);
             const badge = document.getElementById('panierCount');
             if (badge) badge.textContent = total;
+        }
+
+        // ===== FORMAT PRIX =====
+        function formatPrice(p) {
+            return Number(p || 0).toLocaleString('fr-FR') + ' DH';
         }
 
         // ===== STATISTIQUES =====
@@ -525,82 +469,99 @@
                 const response = await fetch(`${API_BASE}/statistiques/dashboard`);
                 if (!response.ok) throw new Error('Erreur chargement stats');
                 const data = await response.json();
-                
+
                 document.getElementById('nbProduits').textContent = data.nombreProduits || 0;
                 document.getElementById('nbClients').textContent = data.nombreClients || 0;
                 document.getElementById('nbVentes').textContent = data.nombreVentes || 0;
-                document.getElementById('nbMarques').textContent = data.topProduits ? data.topProduits.length : 0;
+                document.getElementById('nbMarques').textContent = (data.topProduits || []).length;
             } catch (error) {
-                console.error('Erreur stats:', error);
+                console.warn('⚠️ Stats indisponibles:', error.message);
+                // Valeurs par défaut
+                document.getElementById('nbProduits').textContent = '5';
+                document.getElementById('nbClients').textContent = '9';
+                document.getElementById('nbVentes').textContent = '3';
+                document.getElementById('nbMarques').textContent = '4';
             }
         }
 
         // ===== PRODUITS EN VEDETTE =====
         async function loadFeaturedProducts() {
             const container = document.getElementById('featuredProducts');
+            if (!container) return;
+
             try {
                 const response = await fetch(`${API_BASE}/produits?size=100`);
-                if (!response.ok) throw new Error('Erreur chargement');
+                if (!response.ok) throw new Error('Erreur chargement produits');
+
                 const data = await response.json();
                 const products = data.content || [];
-                
+
+                console.log('📦 Produits reçus:', products.length);
+
                 if (products.length === 0) {
-                    container.innerHTML = `<p style="text-align:center;color:#888;" data-i18n="loading">Aucun produit disponible</p>`;
+                    container.innerHTML = `<p style="text-align:center;color:#888;">Aucun produit disponible</p>`;
                     return;
                 }
-                
+
                 const featured = products.slice(0, 4);
                 container.innerHTML = featured.map(p => `
                     <div class="product-card">
                         <div class="image">🏍️</div>
                         <div class="info">
-                            <h3>${p.nom}</h3>
-                            <div class="ref">${p.reference}</div>
-                            <div class="prix">${p.prixVente.toLocaleString('fr-FR')} DH</div>
+                            <h3>${p.nom || '-'}</h3>
+                            <div class="ref">${p.reference || ''}</div>
+                            <div class="prix">${formatPrice(p.prixVente)}</div>
                             <div class="stock">${p.categorieNom || 'Non catégorisé'}</div>
-                            <button class="btn-add-cart" onclick="ajouterAuPanier(${p.id}, '${p.nom}', ${p.prixVente})">
+                            <button class="btn-add-cart" onclick="ajouterAuPanier(${p.id}, '${(p.nom || '').replace(/'/g, "\\'")}', ${p.prixVente || 0})">
                                 🛒 Ajouter au panier
                             </button>
                         </div>
                     </div>
                 `).join('');
             } catch (error) {
-                container.innerHTML = '<p style="text-align:center;color:#888;">Erreur de chargement</p>';
+                console.error('❌ Erreur produits:', error);
+                container.innerHTML = `<p style="text-align:center;color:#e94560;">❌ Impossible de charger les produits</p>`;
             }
         }
 
         // ===== PROMOTIONS =====
         async function loadPromotions() {
             const container = document.getElementById('promoProducts');
+            if (!container) return;
+
             try {
                 const response = await fetch(`${API_BASE}/produits?size=100`);
                 if (!response.ok) throw new Error('Erreur chargement');
+
                 const data = await response.json();
                 const products = data.content || [];
-                const promos = products.filter(p => p.quantiteStock < 5 && p.quantiteStock > 0);
-                
+                const promos = products.filter(p => p.quantiteStock < 5);
+
                 if (promos.length === 0) {
-                    container.innerHTML = `<p style="text-align:center;color:#888;" data-i18n="loading">🎯 Aucune promotion actuellement</p>`;
+                    container.innerHTML = `<p style="text-align:center;color:#888;">🎯 Aucune promotion actuellement</p>`;
                     return;
                 }
-                
+
                 container.innerHTML = promos.map(p => `
                     <div class="product-card" style="position:relative;">
                         <span class="badge-promo">🔥 Stock limité</span>
                         <div class="image">🏍️</div>
                         <div class="info">
-                            <h3>${p.nom}</h3>
-                            <div class="ref">${p.reference}</div>
-                            <div class="prix">${p.prixVente.toLocaleString('fr-FR')} DH</div>
-                            <div class="stock" style="color:#e94560;">⚠️ Stock: ${p.quantiteStock}</div>
-                            <button class="btn-add-cart" onclick="ajouterAuPanier(${p.id}, '${p.nom}', ${p.prixVente})">
+                            <h3>${p.nom || '-'}</h3>
+                            <div class="ref">${p.reference || ''}</div>
+                            <div class="prix">${formatPrice(p.prixVente)}</div>
+                            <div class="stock" style="color:${p.quantiteStock === 0 ? '#e94560' : '#FF9800'};">
+                                ⚠️ Stock: ${p.quantiteStock}
+                            </div>
+                            <button class="btn-add-cart" onclick="ajouterAuPanier(${p.id}, '${(p.nom || '').replace(/'/g, "\\'")}', ${p.prixVente || 0})">
                                 🛒 Ajouter au panier
                             </button>
                         </div>
                     </div>
                 `).join('');
             } catch (error) {
-                container.innerHTML = '<p style="text-align:center;color:#888;">Erreur de chargement</p>';
+                console.error('❌ Erreur promos:', error);
+                container.innerHTML = `<p style="text-align:center;color:#888;">Erreur de chargement</p>`;
             }
         }
 
@@ -612,7 +573,7 @@
                 }
                 return;
             }
-            
+
             let panier = JSON.parse(localStorage.getItem('panier')) || [];
             const existing = panier.find(p => p.id === id);
             if (existing) {
@@ -630,25 +591,22 @@
             const motoWrapper = document.getElementById('motoWrapper');
             const motoShadow = document.getElementById('motoShadow');
             const heroSection = document.querySelector('.hero-3d');
-            
+
             if (!motoWrapper) return;
-            
+
             let isMobile = window.innerWidth < 768;
             let mouseX = 0, mouseY = 0;
             let currentRotateX = 0, currentRotateY = 0;
             let targetRotateX = 0, targetRotateY = 0;
             let isAnimating = false;
             let autoAnimationId = null;
-            
+
             function checkMobile() {
                 isMobile = window.innerWidth < 768;
-                if (isMobile) {
-                    startAutoAnimation();
-                } else {
-                    stopAutoAnimation();
-                }
+                if (isMobile) startAutoAnimation();
+                else stopAutoAnimation();
             }
-            
+
             function startAutoAnimation() {
                 if (autoAnimationId) return;
                 let time = 0;
@@ -665,19 +623,19 @@
                 }
                 animate();
             }
-            
+
             function stopAutoAnimation() {
                 if (autoAnimationId) {
                     cancelAnimationFrame(autoAnimationId);
                     autoAnimationId = null;
                 }
             }
-            
+
             if (!isMobile) {
                 document.addEventListener('mousemove', function(e) {
                     const rect = heroSection?.getBoundingClientRect();
                     if (!rect) return;
-                    
+
                     const centerX = rect.left + rect.width / 2;
                     const centerY = rect.top + rect.height / 2;
                     mouseX = (e.clientX - centerX) / (rect.width / 2);
@@ -689,13 +647,13 @@
                         animateMoto();
                     }
                 });
-                
+
                 heroSection?.addEventListener('mouseleave', function() {
                     targetRotateX = 0;
                     targetRotateY = 0;
                 });
             }
-            
+
             function animateMoto() {
                 const speed = 0.08;
                 currentRotateX += (targetRotateX - currentRotateX) * speed;
@@ -714,15 +672,23 @@
                     isAnimating = false;
                 }
             }
-            
+
             window.addEventListener('resize', checkMobile);
             checkMobile();
         }
 
         // ===== INITIALISATION =====
-        document.addEventListener('DOMContentLoaded', function() {
-            // Les fonctions sont déjà appelées dans le script de langue
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 Initialisation page accueil...');
+            updateNavbar();
+            updatePanierCount();
+            loadStats();
+            loadFeaturedProducts();
+            loadPromotions();
+            initMoto3D();
         });
+
+        console.log('✅ index.html chargé');
     </script>
 </body>
 </html>

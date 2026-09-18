@@ -615,20 +615,22 @@
         </div>
     </div>
 
-    <!-- ===== DETAIL MODAL ===== -->
-    <div class="modal-overlay" id="detailModal">
-        <div class="modal" style="max-width: 700px;">
-            <div class="modal-header">
-                <h3>🧾 Détail de la vente #<span id="detailVenteId"></span></h3>
-                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="detailContent"></div>
-            <div class="modal-footer">
-                <button class="btn-cancel-modal" onclick="closeDetailModal()">Fermer</button>
-                <button class="btn-submit" onclick="downloadPDFDetail()" style="background:#FF9800;">📄 Télécharger PDF</button>
-            </div>
+   <!-- ===== DETAIL MODAL ===== -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal" style="max-width: 700px;">
+        <div class="modal-header">
+            <h3>🧾 Détail de la vente #<span id="detailVenteId"></span></h3>
+            <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="detailContent"></div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" onclick="closeDetailModal()">Fermer</button>
+            <button class="btn-submit" onclick="downloadPDFDetail()" style="background:#FF9800;">
+                🧾 Voir la facture
+            </button>
         </div>
     </div>
+</div>
 
     <script src="../js/ventes.js"></script>
 </body>
